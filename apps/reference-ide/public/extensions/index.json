@@ -1,0 +1,36 @@
+{
+  "extensions": [
+    {
+      "id": "calc-extension",
+      "path": "calc-extension/",
+      "version": "0.1.0",
+      "description": "Simple sidebar calculator panel",
+      "type": "ui",
+      "availableOnly": true
+    },
+    {
+      "id": "hello-extension",
+      "path": "hello-extension/",
+      "version": "0.1.0",
+      "description": "Sample command extension with status bar integration",
+      "type": "command",
+      "availableOnly": false
+    },
+    {
+      "id": "sample-panel-extension",
+      "path": "sample-panel-extension/",
+      "version": "0.1.0",
+      "description": "Sidebar view with command and localization contributions",
+      "type": "ui",
+      "availableOnly": false
+    },
+    {
+      "id": "todo-extension",
+      "path": "todo-extension/",
+      "version": "0.1.0",
+      "description": "Simple todo list sidebar panel",
+      "type": "ui",
+      "availableOnly": true
+    }
+  ]
+}

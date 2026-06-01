@@ -1,0 +1,22 @@
+{
+  "id": "calc-extension",
+  "name": "Calculator",
+  "version": "0.1.0",
+  "main": "index.js",
+  "icon": "🧮",
+  "description": "Simple sidebar calculator panel",
+  "type": "ui",
+  "availableOnly": true,
+  "readme": "# Calculator\n\nA lightweight calculator extension.\n\n- Basic arithmetic\n- Sidebar panel via activity bar\n\nInstall and reload to activate.",
+  "activationEvents": ["onStartup"],
+  "contributes": {
+    "views": [
+      {
+        "id": "calcPanel",
+        "name": "Calculator",
+        "location": "sidebar",
+        "icon": "🧮"
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@easyspace/plugin-panel",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.tsx --format esm --dts --clean --external react",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@easyspace/plugin-api": "workspace:*",
+    "@easyspace/workbench": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "react": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

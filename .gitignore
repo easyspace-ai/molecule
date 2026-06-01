@@ -1,36 +1,14 @@
-.history
 node_modules
-umd
-esm
+dist
+.turbo
 coverage
+*.log
 .DS_Store
-storybook-static
-.yarn-error.log
-.yarn
+playwright-report
+test-results
+
+# Legacy build artifacts (removed tree; ignore if regenerated locally)
+esm
 lib
-docs/api
-.vscode
-
-# Website
-
-# Dependencies
-website/node_modules
-
-# Production
-website/build
-
-# Generated files
-website/.docusaurus
-website/.cache-loader
-website/docs/api
-
-# Misc
-website/.DS_Store
-website/.env.local
-website/.env.development.local
-website/.env.test.local
-website/.env.production.local
-
-website/npm-debug.log*
-website/yarn-debug.log*
-website/yarn-error.log*
+package-lock.json
+yarn.lock

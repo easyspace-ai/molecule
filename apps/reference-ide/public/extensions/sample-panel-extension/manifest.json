@@ -1,0 +1,30 @@
+{
+  "id": "sample-panel-extension",
+  "name": "Sample Panel",
+  "version": "0.1.0",
+  "main": "index.js",
+  "icon": "◈",
+  "description": "Sidebar view with command and localization contributions",
+  "type": "ui",
+  "readme": "# Sample Panel\n\nAdds a **Sample Panel** sidebar view and greet command.\n\nClick the ◈ icon in the activity bar after enabling.",
+  "activationEvents": ["onStartup"],
+  "contributes": {
+    "views": [
+      {
+        "id": "samplePanel",
+        "name": "Sample Panel",
+        "location": "sidebar",
+        "icon": "◈"
+      }
+    ],
+    "commands": [{ "id": "samplePanel.greet", "title": "Sample Panel: Greet" }],
+    "localizations": [
+      {
+        "locale": "ja",
+        "translations": {
+          "samplePanel.greet.message": "サンプルパネルからこんにちは！"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "@easyspace/reference-ide",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm run -w build:extensions && tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "lint": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@easyspace/ai-host": "workspace:*",
+    "@easyspace/editor": "workspace:*",
+    "@easyspace/kernel": "workspace:*",
+    "@easyspace/plugin-ai": "workspace:*",
+    "@easyspace/plugin-api": "workspace:*",
+    "@easyspace/plugin-commands": "workspace:*",
+    "@easyspace/plugin-explorer": "workspace:*",
+    "@easyspace/plugin-extensions": "workspace:*",
+    "@easyspace/plugin-hello": "workspace:*",
+    "@easyspace/plugin-i18n": "workspace:*",
+    "@easyspace/plugin-panel": "workspace:*",
+    "@easyspace/plugin-runtime": "workspace:*",
+    "@easyspace/plugin-scm": "workspace:*",
+    "@easyspace/plugin-search": "workspace:*",
+    "@easyspace/plugin-terminal": "workspace:*",
+    "@easyspace/plugin-test-pane": "workspace:*",
+    "@easyspace/plugin-themes": "workspace:*",
+    "@easyspace/workbench": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "monaco-editor": "^0.52.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}

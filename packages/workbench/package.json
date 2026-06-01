@@ -1,0 +1,40 @@
+{
+  "name": "@easyspace/workbench",
+  "version": "0.1.0",
+  "description": "Molecule Next workbench layout shell",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom && cp src/styles.css dist/styles.css",
+    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@easyspace/plugin-api": "workspace:*",
+    "@radix-ui/react-scroll-area": "^1.2.2",
+    "@radix-ui/react-tabs": "^1.1.2",
+    "zustand": "^5.0.2"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

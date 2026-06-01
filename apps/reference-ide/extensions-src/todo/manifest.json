@@ -1,0 +1,22 @@
+{
+  "id": "todo-extension",
+  "name": "TODO List",
+  "version": "0.1.0",
+  "main": "index.js",
+  "icon": "☑",
+  "description": "Simple todo list sidebar panel",
+  "type": "ui",
+  "availableOnly": true,
+  "readme": "# TODO List\n\nTrack tasks in a sidebar panel.\n\n- Add items\n- Mark complete\n- Persists in session memory",
+  "activationEvents": ["onStartup"],
+  "contributes": {
+    "views": [
+      {
+        "id": "todoPanel",
+        "name": "TODO",
+        "location": "sidebar",
+        "icon": "☑"
+      }
+    ]
+  }
+}

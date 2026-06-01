@@ -1,0 +1,14 @@
+{
+  "id": "hello-extension",
+  "name": "Hello Extension",
+  "version": "0.1.0",
+  "main": "index.js",
+  "icon": "👋",
+  "description": "Sample command extension with status bar integration",
+  "type": "command",
+  "readme": "# Hello Extension\n\nDemonstrates command contributions and notifications.\n\nRun **Hello Extension: Ping** from the command palette.",
+  "activationEvents": ["onStartup"],
+  "contributes": {
+    "commands": [{ "id": "helloExtension.ping", "title": "Hello Extension: Ping" }]
+  }
+}

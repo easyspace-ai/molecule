@@ -1,0 +1,39 @@
+{
+  "name": "@easyspace/editor",
+  "version": "0.1.0",
+  "description": "Molecule Next Monaco editor adapter",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom --external monaco-editor --injectStyle",
+    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external monaco-editor",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@easyspace/plugin-api": "workspace:*",
+    "@easyspace/workbench": "workspace:*",
+    "monaco-editor": "^0.52.2",
+    "zustand": "^5.0.2"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

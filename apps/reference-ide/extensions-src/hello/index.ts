@@ -1,0 +1,26 @@
+import type { PluginModule } from '@easyspace/plugin-api';
+
+const plugin: PluginModule = {
+  manifest: {
+    id: 'hello-extension',
+    name: 'Hello Extension',
+    version: '0.1.0',
+    activationEvents: ['onStartup'],
+    contributes: {
+      commands: [{ id: 'helloExtension.ping', title: 'Hello Extension: Ping' }],
+    },
+  },
+  activate(ctx) {
+    ctx.commands.registerCommand('helloExtension.ping', () => {
+      ctx.workbench.showNotification('Hello from bundled extension!', 'info');
+    });
+    ctx.workbench.setStatusBarItem({
+      id: 'hello-extension-status',
+      text: 'ext:hello',
+      alignment: 'right',
+      priority: 5,
+    });
+  },
+};
+
+export default plugin;
