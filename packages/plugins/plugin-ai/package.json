@@ -6,12 +6,13 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.tsx --format esm --dts --clean --external react",
+    "build": "tsup src/index.tsx --format esm --dts --clean --external react --external @easyspace/ui",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@easyspace/ai-host": "workspace:*",
-    "@easyspace/plugin-api": "workspace:*"
+    "@easyspace/plugin-api": "workspace:*",
+    "@easyspace/ui": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.2.0"

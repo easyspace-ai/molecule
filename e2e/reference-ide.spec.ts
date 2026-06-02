@@ -53,12 +53,12 @@ test.describe('Reference IDE', () => {
 
     await page.keyboard.press('Control+k');
     await expect(page.getByTestId('theme-picker')).toBeVisible();
-    await page.getByTestId('theme-picker-vs-light').click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'vs-light');
+    await page.getByTestId('theme-picker-github').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'github');
 
     await page.reload();
     await expect(page.getByTestId('workbench')).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'vs-light');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'github');
   });
 
   test('Ctrl+B toggles sidebar visibility', async ({ page, browserName }) => {
@@ -162,6 +162,11 @@ test.describe('Reference IDE', () => {
     await expect(page.getByTestId('panel-terminal')).toHaveAttribute('data-terminal-output', /hello-terminal/, {
       timeout: 8000,
     });
+  });
+
+  test('default locale shows Chinese menubar', async ({ page }) => {
+    await waitForWorkbench(page);
+    await expect(page.getByTestId('menubar')).toContainText('文件', { timeout: 5000 });
   });
 
   test('i18n switch updates menubar to Japanese', async ({ page, browserName }) => {

@@ -1,8 +1,8 @@
 import { EditorTabs } from '@easyspace/workbench';
+import { cn } from '@easyspace/ui';
 import { ExtensionDetailTab } from './ExtensionDetailTab.js';
 import { useEditorStore } from './editor-store.js';
 import { MonacoEditor } from './MonacoEditor.js';
-import './extension-detail.css';
 
 function EditorPane({ paneId }: { paneId: string }) {
   const {
@@ -24,14 +24,10 @@ function EditorPane({ paneId }: { paneId: string }) {
   return (
     <div
       data-testid={`editor-pane-${paneId}`}
-      style={{
-        flex: 1,
-        minWidth: 0,
-        minHeight: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        borderRight: paneId !== panes[panes.length - 1]?.id ? '1px solid var(--mo-border)' : undefined,
-      }}
+      className={cn(
+        'relative flex min-h-0 min-w-0 flex-1 flex-col',
+        paneId !== panes[panes.length - 1]?.id && 'border-r border-border'
+      )}
       onFocus={() => setActivePane(paneId)}
       onMouseDown={() => setActivePane(paneId)}
     >
@@ -56,15 +52,7 @@ function EditorPane({ paneId }: { paneId: string }) {
             />
           )
         ) : (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              color: 'var(--mo-fg-muted)',
-            }}
-          >
+          <div className="flex h-full items-center justify-center text-muted-foreground">
             Open a file from the explorer
           </div>
         )}
@@ -72,13 +60,7 @@ function EditorPane({ paneId }: { paneId: string }) {
       {activePaneId === paneId && (
         <div
           aria-hidden
-          style={{
-            position: 'absolute',
-            pointerEvents: 'none',
-            width: 0,
-            height: 0,
-            overflow: 'hidden',
-          }}
+          className="pointer-events-none absolute size-0 overflow-hidden"
           data-testid="editor-pane-active"
         />
       )}
@@ -93,14 +75,10 @@ export function EditorPaneHost() {
   return (
     <div
       data-testid="editor-pane-host"
-      style={{
-        display: 'flex',
-        flex: 1,
-        minHeight: 0,
-        height: '100%',
-        position: 'relative',
-        flexDirection: splitDirection === 'vertical' ? 'column' : 'row',
-      }}
+      className={cn(
+        'relative flex min-h-0 flex-1',
+        splitDirection === 'vertical' ? 'flex-col' : 'flex-row'
+      )}
     >
       {panes.map((pane) => (
         <EditorPane key={pane.id} paneId={pane.id} />

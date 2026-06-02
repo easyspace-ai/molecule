@@ -1,0 +1,15 @@
+@import "@easyspace/ui/styles/tokens.css";
+
+/* Scan monorepo packages (workbench, ui, plugins, editor) for Tailwind classes */
+@source "../../../packages/**/*.{ts,tsx}";
+@source "../src/**/*.{ts,tsx}";
+
+/* Full-viewport IDE shell */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}

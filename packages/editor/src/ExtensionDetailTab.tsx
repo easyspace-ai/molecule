@@ -1,3 +1,4 @@
+import { resolveActivityIcon, Icon_Puzzle } from '@easyspace/ui';
 import { useCallback, useState } from 'react';
 
 import type { ExtensionDetailData } from '@easyspace/plugin-api';
@@ -120,7 +121,7 @@ export function ExtensionDetailTab({ detail, onToggleEnabled }: ExtensionDetailT
       <div className="mo-extension-detail__main">
         <header className="mo-extension-detail__header">
           <span className="mo-extension-detail__icon" aria-hidden>
-            {detail.icon ?? '⊞'}
+            {detail.icon ? resolveActivityIcon(detail.icon, detail.extensionId, 'size-8') : <Icon_Puzzle className="size-8" aria-hidden />}
           </span>
           <div>
             <h1 className="mo-extension-detail__title" data-testid="extension-detail-name">

@@ -11,8 +11,8 @@ const plugin: PluginModule = {
       commands: [{ id: 'samplePanel.greet', title: 'Sample Panel: Greet' }],
       localizations: [
         {
-          locale: 'ja',
-          translations: { 'samplePanel.greet.message': 'サンプルパネルからこんにちは！' },
+          locale: 'zh-CN',
+          translations: { 'samplePanel.greet.message': '来自示例面板的问候！' },
         },
       ],
     },

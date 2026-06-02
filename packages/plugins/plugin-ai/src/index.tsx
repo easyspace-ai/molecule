@@ -1,4 +1,5 @@
 import type { AIEditProposal, AIHostAPI, PluginModule } from '@easyspace/plugin-api';
+import { Button, Input, ScrollArea, cn, Icon_Send } from '@easyspace/ui';
 import { useCallback, useRef, useState } from 'react';
 
 function DiffPreview({
@@ -15,78 +16,41 @@ function DiffPreview({
   return (
     <div
       data-testid="ai-diff-preview"
-      style={{
-        margin: 8,
-        padding: 10,
-        border: '1px solid var(--mo-border)',
-        borderRadius: 6,
-        background: 'var(--mo-bg-tertiary)',
-        fontSize: 12,
-      }}
+      className="m-2 rounded-md border border-border bg-foreground/5 p-2.5 text-xs"
     >
       <strong>
         Proposed edit{edits.length > 1 ? 's' : ''} ({edits.length} file{edits.length > 1 ? 's' : ''})
       </strong>
       {edits.map((edit) => (
-        <div key={edit.path} data-testid={`ai-diff-file-${edit.path}`} style={{ marginTop: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <code>{edit.path}</code>
+        <div key={edit.path} data-testid={`ai-diff-file-${edit.path}`} className="mt-2">
+          <div className="flex items-center gap-2">
+            <code className="font-mono">{edit.path}</code>
             {edits.length > 1 ? (
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
+                className="ml-auto h-6 text-[10px]"
                 data-testid={`ai-diff-accept-file-${edit.path}`}
                 onClick={() => onAcceptOne(edit)}
-                style={{ marginLeft: 'auto', fontSize: 10, cursor: 'pointer' }}
               >
                 Accept file
-              </button>
+              </Button>
             ) : null}
           </div>
-          <pre
-            style={{
-              margin: '4px 0 0',
-              maxHeight: 80,
-              overflow: 'auto',
-              whiteSpace: 'pre-wrap',
-              fontSize: 11,
-            }}
-          >
+          <pre className="mt-1 max-h-20 overflow-auto whitespace-pre-wrap font-mono text-[11px]">
             {edit.newText.slice(0, 300)}
             {edit.newText.length > 300 ? '…' : ''}
           </pre>
         </div>
       ))}
-      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-        <button
-          type="button"
-          data-testid="ai-diff-accept"
-          onClick={onAccept}
-          style={{
-            padding: '6px 10px',
-            background: 'var(--mo-accent)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-          }}
-        >
+      <div className="mt-2 flex gap-2">
+        <Button type="button" size="sm" data-testid="ai-diff-accept" onClick={onAccept}>
           Accept all
-        </button>
-        <button
-          type="button"
-          data-testid="ai-diff-reject"
-          onClick={onReject}
-          style={{
-            padding: '6px 10px',
-            background: 'transparent',
-            color: 'inherit',
-            border: '1px solid var(--mo-border)',
-            borderRadius: 4,
-            cursor: 'pointer',
-          }}
-        >
+        </Button>
+        <Button type="button" variant="outline" size="sm" data-testid="ai-diff-reject" onClick={onReject}>
           Reject
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -153,10 +117,7 @@ function ChatView({
   }, [ai, sessionId, input, streaming, onPendingEdits]);
 
   return (
-    <div
-      data-testid="ai-chat"
-      style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 300 }}
-    >
+    <div data-testid="ai-chat" className="flex h-full min-h-[300px] flex-col">
       {pendingEdits.length > 0 && (
         <DiffPreview
           edits={pendingEdits}
@@ -171,69 +132,38 @@ function ChatView({
           onReject={() => onPendingEdits([])}
         />
       )}
-      <div
-        style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-        }}
-      >
-        {messages.length === 0 && (
-          <p style={{ color: 'var(--mo-fg-muted)', margin: 8 }}>Ask anything about your workspace…</p>
-        )}
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            style={{
-              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '90%',
-              padding: '8px 10px',
-              borderRadius: 6,
-              background:
-                msg.role === 'user' ? 'var(--mo-accent)' : 'var(--mo-bg-tertiary)',
-              color: msg.role === 'user' ? '#fff' : 'inherit',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {msg.text || (streaming && msg.role === 'assistant' ? '…' : '')}
-          </div>
-        ))}
-      </div>
-      <div style={{ padding: 8, borderTop: '1px solid var(--mo-border)', display: 'flex', gap: 8 }}>
-        <input
+      <ScrollArea className="flex-1 p-2">
+        <div className="flex flex-col gap-2">
+          {messages.length === 0 && (
+            <p className="m-2 text-sm text-muted-foreground">Ask anything about your workspace…</p>
+          )}
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={cn(
+                'max-w-[90%] whitespace-pre-wrap rounded-md px-2.5 py-2 text-sm',
+                msg.role === 'user'
+                  ? 'ml-auto bg-accent text-background'
+                  : 'bg-foreground/5 text-foreground'
+              )}
+            >
+              {msg.text || (streaming && msg.role === 'assistant' ? '…' : '')}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+      <div className="flex gap-2 border-t border-border p-2">
+        <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && void send()}
           placeholder="Message AI…"
           disabled={streaming}
-          style={{
-            flex: 1,
-            padding: 8,
-            border: '1px solid var(--mo-border)',
-            borderRadius: 4,
-            background: 'var(--mo-bg)',
-            color: 'inherit',
-          }}
+          className="flex-1"
         />
-        <button
-          type="button"
-          onClick={() => void send()}
-          disabled={streaming}
-          data-testid="ai-send"
-          style={{
-            padding: '8px 12px',
-            background: 'var(--mo-accent)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer',
-          }}
-        >
-          Send
-        </button>
+        <Button type="button" size="icon" onClick={() => void send()} disabled={streaming} data-testid="ai-send">
+          <Icon_Send className="size-4" aria-hidden />
+        </Button>
       </div>
     </div>
   );
@@ -275,7 +205,7 @@ export const aiPlugin: PluginModule = {
     version: '0.2.0',
     activationEvents: ['onStartup'],
     contributes: {
-      views: [{ id: 'ai.chat', name: 'AI Chat', location: 'auxiliaryBar', icon: '✦' }],
+      views: [{ id: 'ai.chat', name: 'AI Chat', location: 'auxiliaryBar', icon: 'ai' }],
       commands: [
         { id: 'ai.openChat', title: 'AI: Open Chat' },
         { id: 'ai.askSelection', title: 'AI: Ask About Selection' },

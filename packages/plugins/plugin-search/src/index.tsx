@@ -1,4 +1,5 @@
 import type { ConfigurationAPI, PluginModule, SearchMatch } from '@easyspace/plugin-api';
+import { Button, Input, ScrollArea, Icon_Search } from '@easyspace/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function SearchViewHost({
@@ -74,37 +75,18 @@ function SearchView({
   }, [query, search, useRegexProp]);
 
   return (
-    <div data-testid="search-view" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: 8, borderBottom: '1px solid var(--mo-border)' }}>
-        <input
+    <div data-testid="search-view" className="flex h-full flex-col">
+      <div className="border-b border-border p-2">
+        <Input
           ref={inputRef}
           type="search"
           placeholder="Search in files…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && void runSearch()}
-          style={{
-            width: '100%',
-            boxSizing: 'border-box',
-            padding: '6px 8px',
-            background: 'var(--mo-bg)',
-            border: '1px solid var(--mo-border)',
-            color: 'inherit',
-            borderRadius: 4,
-          }}
           data-testid="search-input"
         />
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            marginTop: 6,
-            fontSize: 11,
-            color: 'var(--mo-fg-muted)',
-            cursor: 'pointer',
-          }}
-        >
+        <label className="mt-1.5 flex cursor-pointer items-center gap-1.5 text-[11px] text-muted-foreground">
           <input
             type="checkbox"
             checked={useRegexProp}
@@ -113,45 +95,32 @@ function SearchView({
           />
           Use regular expression
         </label>
-        <button
-          type="button"
-          onClick={() => void runSearch()}
-          style={{ marginTop: 6, width: '100%', padding: '4px 8px', cursor: 'pointer' }}
-        >
+        <Button type="button" variant="secondary" size="sm" className="mt-1.5 w-full" onClick={() => void runSearch()}>
+          <Icon_Search className="mr-1 size-3.5" aria-hidden />
           {loading ? 'Searching…' : 'Search'}
-        </button>
+        </Button>
       </div>
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0, flex: 1, overflow: 'auto' }}>
-        {results.map((r, i) => (
-          <li key={`${r.path}:${r.line}:${i}`}>
-            <button
-              type="button"
-              onClick={() => onOpen(r.path, r.line)}
-              style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
-                background: 'transparent',
-                border: 'none',
-                color: 'inherit',
-                padding: '6px 12px',
-                cursor: 'pointer',
-                fontSize: 12,
-              }}
-            >
-              <div style={{ color: 'var(--mo-accent)' }}>
-                {r.path}:{r.line}
-              </div>
-              <div style={{ color: 'var(--mo-fg-muted)', fontFamily: 'var(--mo-font-mono)' }}>
-                {r.text}
-              </div>
-            </button>
-          </li>
-        ))}
-        {!loading && query && results.length === 0 && (
-          <li style={{ padding: 12, color: 'var(--mo-fg-muted)' }}>No results</li>
-        )}
-      </ul>
+      <ScrollArea className="flex-1">
+        <ul>
+          {results.map((r, i) => (
+            <li key={`${r.path}:${r.line}:${i}`}>
+              <button
+                type="button"
+                onClick={() => onOpen(r.path, r.line)}
+                className="block w-full px-3 py-1.5 text-left text-xs hover:bg-foreground/5"
+              >
+                <div className="text-accent">
+                  {r.path}:{r.line}
+                </div>
+                <div className="font-mono text-muted-foreground">{r.text}</div>
+              </button>
+            </li>
+          ))}
+          {!loading && query && results.length === 0 && (
+            <li className="p-3 text-sm text-muted-foreground">No results</li>
+          )}
+        </ul>
+      </ScrollArea>
     </div>
   );
 }
@@ -169,7 +138,7 @@ export const searchPlugin: PluginModule = {
     version: '0.1.0',
     activationEvents: ['onStartup'],
     contributes: {
-      views: [{ id: 'search', name: 'Search', location: 'sidebar', icon: '⌕' }],
+      views: [{ id: 'search', name: 'Search', location: 'sidebar', icon: 'search' }],
       commands: [{ id: 'search.focus', title: 'Search: Focus' }],
       keybindings: [
         { command: 'search.focus', key: 'ctrl+shift+f' },

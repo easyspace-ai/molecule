@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const appConfigSchema = z.object({
   defaultLocale: z.string().default('en-US'),
-  defaultThemeId: z.string().default('vs-dark'),
+  defaultThemeId: z.string().default('default'),
   ai: z
     .object({
       enabled: z.boolean().default(true),

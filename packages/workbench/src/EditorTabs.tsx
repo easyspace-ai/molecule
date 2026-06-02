@@ -1,3 +1,4 @@
+import { EditorTabBar, EditorTabContent } from '@easyspace/ui';
 import type { ReactNode } from 'react';
 
 export interface EditorTab {
@@ -14,24 +15,11 @@ export interface EditorTabsProps {
   children: ReactNode;
 }
 
-export function EditorTabs({ tabs, activeId, onSelect, children }: EditorTabsProps) {
+export function EditorTabs({ tabs, activeId, onSelect, onClose, children }: EditorTabsProps) {
   return (
-    <>
-      <div className="mo-tabs" role="tablist">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={activeId === tab.id}
-            className={`mo-tab${activeId === tab.id ? ' mo-tab--active' : ''}`}
-            onClick={() => onSelect(tab.id)}
-          >
-            {tab.dirty ? `${tab.label} •` : tab.label}
-          </button>
-        ))}
-      </div>
-      <div className="mo-editor-content">{children}</div>
-    </>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <EditorTabBar tabs={tabs} activeId={activeId} onSelect={onSelect} onClose={onClose} />
+      <EditorTabContent>{children}</EditorTabContent>
+    </div>
   );
 }

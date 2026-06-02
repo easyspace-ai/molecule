@@ -2828,8 +2828,8 @@ var plugin = {
       commands: [{ id: "samplePanel.greet", title: "Sample Panel: Greet" }],
       localizations: [
         {
-          locale: "ja",
-          translations: { "samplePanel.greet.message": "\u30B5\u30F3\u30D7\u30EB\u30D1\u30CD\u30EB\u304B\u3089\u3053\u3093\u306B\u3061\u306F\uFF01" }
+          locale: "zh-CN",
+          translations: { "samplePanel.greet.message": "\u6765\u81EA\u793A\u4F8B\u9762\u677F\u7684\u95EE\u5019\uFF01" }
         }
       ]
     }

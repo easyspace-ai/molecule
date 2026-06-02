@@ -19,7 +19,7 @@ export function applyLocale(locale: string): void {
 }
 
 function syncFromConfiguration(configuration: ConfigurationAPI): void {
-  const locale = configuration.get<string>('locale', 'en');
+  const locale = configuration.get<string>('locale', 'zh-CN');
   applyLocale(locale);
 }
 
@@ -40,7 +40,7 @@ export const i18nPlugin: PluginModule = {
   },
   activate(ctx) {
     if (!ctx.configuration) {
-      applyLocale('en');
+      applyLocale('zh-CN');
       return;
     }
 
@@ -53,7 +53,7 @@ export const i18nPlugin: PluginModule = {
     });
 
     ctx.commands.registerCommand('workbench.setLocale', async () => {
-      const current = ctx.configuration!.get<string>('locale', 'en');
+      const current = ctx.configuration!.get<string>('locale', 'zh-CN');
       const next = await ctx.ui.showQuickPick([...BUNDLED_LOCALES], 'Display language');
       if (!next || next === current) return;
       await ctx.configuration!.update('locale', next);

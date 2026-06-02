@@ -1,4 +1,5 @@
 import type { PluginModule, ScmAPI, ScmFileChange } from '@easyspace/plugin-api';
+import { Button, Input, ScrollArea } from '@easyspace/ui';
 import { useCallback, useEffect, useState } from 'react';
 
 const STATUS_LABEL: Record<ScmFileChange['status'], string> = {
@@ -33,71 +34,60 @@ function SourceControlView({ scm }: { scm: ScmAPI }) {
   const unstaged = files.filter((f) => f.status !== 'added');
 
   return (
-    <div data-testid="scm-view" style={{ padding: '8px 12px', overflow: 'auto' }}>
-      <div style={{ fontSize: 11, color: 'var(--mo-fg-muted)', marginBottom: 8 }}>
-        Branch: {branch}
+    <ScrollArea className="h-full">
+      <div data-testid="scm-view" className="space-y-3 p-3 text-xs">
+        <div className="text-muted-foreground">Branch: {branch}</div>
+
+        {staged.length > 0 ? (
+          <section>
+            <h4 className="mb-1 text-[11px] uppercase text-muted-foreground">Staged</h4>
+            <FileList files={staged} scm={scm} onRefresh={refresh} showStage={false} />
+          </section>
+        ) : null}
+
+        <section>
+          <h4 className="mb-1 text-[11px] uppercase text-muted-foreground">Changes</h4>
+          {unstaged.length === 0 ? (
+            <p className="text-muted-foreground">No changed files.</p>
+          ) : (
+            <FileList files={unstaged} scm={scm} onRefresh={refresh} showStage />
+          )}
+        </section>
+
+        <Input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Commit message"
+          data-testid="scm-commit-message"
+        />
+        <Button
+          type="button"
+          size="sm"
+          data-testid="scm-commit"
+          onClick={() => void scm.commit(message || 'Commit').then(() => { setMessage(''); return refresh(); })}
+        >
+          Commit
+        </Button>
+
+        {commits.length > 0 ? (
+          <section>
+            <h4 className="mb-1 text-[11px] uppercase text-muted-foreground">Recent commits</h4>
+            <ul className="space-y-0.5 font-mono text-[11px]">
+              {commits.map((c) => (
+                <li key={c.oid}>
+                  <span className="text-accent">{c.oid}</span> {c.message}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        <p className="text-[10px] text-muted-foreground">
+          Powered by <code>@easyspace/git</code> (isomorphic-git).
+        </p>
       </div>
-
-      {staged.length > 0 ? (
-        <section style={{ marginBottom: 12 }}>
-          <h4 style={{ margin: '0 0 4px', fontSize: 11, color: 'var(--mo-fg-muted)' }}>Staged</h4>
-          <FileList files={staged} scm={scm} onRefresh={refresh} showStage={false} />
-        </section>
-      ) : null}
-
-      <section style={{ marginBottom: 12 }}>
-        <h4 style={{ margin: '0 0 4px', fontSize: 11, color: 'var(--mo-fg-muted)' }}>Changes</h4>
-        {unstaged.length === 0 ? (
-          <p style={{ fontSize: 12, color: 'var(--mo-fg-muted)' }}>No changed files.</p>
-        ) : (
-          <FileList files={unstaged} scm={scm} onRefresh={refresh} showStage />
-        )}
-      </section>
-
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Commit message"
-        data-testid="scm-commit-message"
-        style={{
-          width: '100%',
-          boxSizing: 'border-box',
-          fontSize: 12,
-          padding: '6px 8px',
-          marginBottom: 8,
-          border: '1px solid var(--mo-border)',
-          borderRadius: 4,
-          background: 'var(--mo-bg)',
-          color: 'inherit',
-        }}
-      />
-      <button
-        type="button"
-        data-testid="scm-commit"
-        onClick={() => void scm.commit(message || 'Commit').then(() => { setMessage(''); return refresh(); })}
-        style={{ fontSize: 11, cursor: 'pointer' }}
-      >
-        Commit
-      </button>
-
-      {commits.length > 0 ? (
-        <section style={{ marginTop: 12 }}>
-          <h4 style={{ margin: '0 0 4px', fontSize: 11, color: 'var(--mo-fg-muted)' }}>Recent commits</h4>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: 11 }}>
-            {commits.map((c) => (
-              <li key={c.oid} style={{ padding: '2px 0', fontFamily: 'var(--mo-font-mono)' }}>
-                <span style={{ color: 'var(--mo-accent)' }}>{c.oid}</span> {c.message}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <p style={{ fontSize: 10, color: 'var(--mo-fg-muted)', marginTop: 8 }}>
-        Powered by <code>@easyspace/git</code> (isomorphic-git).
-      </p>
-    </div>
+    </ScrollArea>
   );
 }
 
@@ -113,37 +103,20 @@ function FileList({
   showStage: boolean;
 }) {
   return (
-    <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+    <ul className="space-y-1">
       {files.map((file) => (
-        <li
-          key={file.path}
-          style={{
-            display: 'flex',
-            gap: 8,
-            padding: '4px 0',
-            fontSize: 12,
-            fontFamily: 'var(--mo-font-mono)',
-          }}
-        >
-          <span style={{ width: 16, color: 'var(--mo-accent)' }}>{STATUS_LABEL[file.status]}</span>
-          <span>{file.path}</span>
+        <li key={file.path} className="flex items-center gap-2 font-mono">
+          <span className="w-4 text-accent">{STATUS_LABEL[file.status]}</span>
+          <span className="min-w-0 flex-1 truncate">{file.path}</span>
           {showStage && (file.status === 'modified' || file.status === 'untracked') ? (
-            <button
-              type="button"
-              onClick={() => void scm.stage(file.path).then(onRefresh)}
-              style={{ marginLeft: 'auto', fontSize: 10, cursor: 'pointer' }}
-            >
+            <Button type="button" variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => void scm.stage(file.path).then(onRefresh)}>
               Stage
-            </button>
+            </Button>
           ) : null}
           {!showStage && scm.unstage ? (
-            <button
-              type="button"
-              onClick={() => void scm.unstage!(file.path).then(onRefresh)}
-              style={{ marginLeft: 'auto', fontSize: 10, cursor: 'pointer' }}
-            >
+            <Button type="button" variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => void scm.unstage!(file.path).then(onRefresh)}>
               Unstage
-            </button>
+            </Button>
           ) : null}
         </li>
       ))}
@@ -158,7 +131,7 @@ export const scmPlugin: PluginModule = {
     version: '0.2.0',
     activationEvents: ['onStartup'],
     contributes: {
-      views: [{ id: 'scm', name: 'Source Control', location: 'sidebar', icon: '⎇' }],
+      views: [{ id: 'scm', name: 'Source Control', location: 'sidebar', icon: 'scm' }],
       commands: [{ id: 'scm.refresh', title: 'SCM: Refresh' }],
     },
   },

@@ -42,7 +42,8 @@ import { terminalPlugin } from '@easyspace/plugin-terminal';
 import {
   applyTheme,
   createThemesPlugin,
-  readPersistedThemeId,
+  migrateLegacyThemeId,
+  readPersistedTheme,
   setInitialTheme,
   setThemeChangeHandler,
   ThemePickerHost,
@@ -230,7 +231,7 @@ export function MoleculeIDE() {
     };
 
     void (async () => {
-      const persistedTheme = readPersistedThemeId();
+      const persistedTheme = readPersistedTheme();
       if (persistedTheme) {
         setInitialTheme(persistedTheme);
         applyTheme(persistedTheme);
@@ -268,17 +269,31 @@ export function MoleculeIDE() {
         useRegex: settings.search.useRegex,
       };
 
-      const themeId = readPersistedThemeId() ?? settings.theme.colorTheme;
-      applyTheme(themeId);
-      if (themeId !== settings.theme.colorTheme) {
-        void configuration.update('theme.colorTheme', themeId);
+      const legacyThemeId = settings.theme.colorTheme;
+      const migrated =
+        legacyThemeId === 'vs-dark' || legacyThemeId === 'vs-light' || legacyThemeId === 'hc-black'
+          ? migrateLegacyThemeId(legacyThemeId)
+          : null;
+      const themeState = persistedTheme ?? migrated ?? {
+        colorTheme: settings.theme.colorTheme,
+        colorMode: settings.theme.colorMode,
+      };
+      applyTheme(themeState);
+      if (
+        themeState.colorTheme !== settings.theme.colorTheme ||
+        themeState.colorMode !== settings.theme.colorMode
+      ) {
+        void configuration.updateSettings({ theme: themeState });
       }
       editorStore.setFontSize(settings.editor.fontSize);
       editorStore.setTabSize(settings.editor.tabSize);
 
       configuration.onDidChange((e) => {
-        if (e.key === 'theme.colorTheme' || e.key === '*') {
-          applyTheme(configuration.get<string>('theme.colorTheme', 'vs-dark'));
+        if (e.key === 'theme.colorTheme' || e.key === 'theme.colorMode' || e.key === '*') {
+          applyTheme({
+            colorTheme: configuration.get<string>('theme.colorTheme', 'default'),
+            colorMode: configuration.get<'system' | 'light' | 'dark'>('theme.colorMode', 'system'),
+          });
         }
         if (e.key === 'editor.fontSize' || e.key === '*') {
           editorStore.setFontSize(configuration.get<number>('editor.fontSize', 13));
@@ -327,9 +342,9 @@ export function MoleculeIDE() {
         aiHost.registerProvider(createMockProvider('mock'));
       }
 
-      setThemeChangeHandler((themeId, monacoTheme) => {
+      setThemeChangeHandler((state, monacoTheme) => {
         editorStore.setTheme(monacoTheme);
-        void configuration.update('theme.colorTheme', themeId);
+        void configuration.updateSettings({ theme: state });
       });
 
       const statusBarItems = new Map<string, StatusBarItem>();

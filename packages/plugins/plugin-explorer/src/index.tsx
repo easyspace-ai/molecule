@@ -1,7 +1,21 @@
 import type { PluginModule, WorkspaceFile } from '@easyspace/plugin-api';
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-import './explorer.css';
+import {
+  Button,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+  FileTree,
+  type FileTreeNode,
+  FileTypeIcon,
+  Icon_FilePlus,
+  Icon_Folder,
+  Icon_FolderPlus,
+  Icon_RefreshCw,
+  ScrollArea,
+} from '@easyspace/ui';
+import { useCallback, useEffect, useState } from 'react';
 
 type ExplorerWorkspace = {
   getRoot: () => string;
@@ -21,22 +35,17 @@ type ExplorerUI = {
   showInputBox: (prompt: string) => Promise<string | undefined>;
 };
 
-const FILE_ICONS: Record<string, string> = {
-  ts: 'TS',
-  tsx: 'TX',
-  js: 'JS',
-  jsx: 'JX',
-  json: '{}',
-  md: 'Md',
-  html: '<>',
-  css: '#',
-  txt: '·',
-};
+function fileIcon(name: string, isDirectory: boolean, isOpen?: boolean) {
+  return <FileTypeIcon name={name} isDirectory={isDirectory} isOpen={isOpen} className="size-3.5" />;
+}
 
-function fileIcon(name: string, isDirectory: boolean): string {
-  if (isDirectory) return '📁';
-  const ext = name.split('.').pop()?.toLowerCase() ?? '';
-  return FILE_ICONS[ext] ?? '📄';
+function toTreeNodes(files: WorkspaceFile[]): FileTreeNode[] {
+  return files.map((f) => ({
+    path: f.path,
+    name: f.name,
+    isDirectory: f.isDirectory,
+    children: f.children ? toTreeNodes(f.children) : undefined,
+  }));
 }
 
 function langForPath(path: string): string {
@@ -55,221 +64,6 @@ function joinPath(base: string | undefined, name: string): string {
   return base ? `${base}/${trimmed}` : trimmed;
 }
 
-function IconFolder() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 7h5l2 2h11v10H3z" />
-    </svg>
-  );
-}
-
-function IconFilePlus() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <path d="M14 2v6h6M12 18v-6M9 15h6" />
-    </svg>
-  );
-}
-
-function IconFolderPlus() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 7h5l2 2h11v10H3z" />
-      <path d="M12 11v6M9 14h6" />
-    </svg>
-  );
-}
-
-function IconRefresh() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
-      <path d="M21 3v6h-6" />
-    </svg>
-  );
-}
-
-interface ContextMenuState {
-  x: number;
-  y: number;
-  item: WorkspaceFile | null;
-}
-
-function ContextMenu({
-  menu,
-  onClose,
-  onAction,
-}: {
-  menu: ContextMenuState;
-  onClose: () => void;
-  onAction: (action: string, item: WorkspaceFile | null) => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const onPointer = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('mousedown', onPointer);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onPointer);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [onClose]);
-
-  const item = menu.item;
-  const isDir = item?.isDirectory ?? true;
-
-  return (
-    <div
-      ref={ref}
-      className="mo-explorer-context-menu"
-      style={{ left: menu.x, top: menu.y }}
-      data-testid="explorer-context-menu"
-    >
-      {isDir && (
-        <>
-          <button type="button" onClick={() => onAction('newFile', item)}>
-            New File
-          </button>
-          <button type="button" onClick={() => onAction('newFolder', item)}>
-            New Folder
-          </button>
-          <div className="mo-explorer-context-menu__separator" />
-        </>
-      )}
-      {item && (
-        <>
-          <button type="button" onClick={() => onAction('rename', item)}>
-            Rename
-          </button>
-          <button type="button" onClick={() => onAction('delete', item)}>
-            Delete
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
-
-function TreeNode({
-  file,
-  depth,
-  selectedPath,
-  expanded,
-  onToggle,
-  onSelect,
-  onOpen,
-  onContextMenu,
-  renamingPath,
-  onRenameSubmit,
-  onRenameCancel,
-}: {
-  file: WorkspaceFile;
-  depth: number;
-  selectedPath: string | null;
-  expanded: Set<string>;
-  onToggle: (path: string) => void;
-  onSelect: (path: string) => void;
-  onOpen: (path: string) => void;
-  onContextMenu: (e: React.MouseEvent, item: WorkspaceFile) => void;
-  renamingPath: string | null;
-  onRenameSubmit: (path: string, newName: string) => void;
-  onRenameCancel: () => void;
-}) {
-  const isOpen = expanded.has(file.path);
-  const isSelected = selectedPath === file.path;
-  const isRenaming = renamingPath === file.path;
-  const [renameValue, setRenameValue] = useState(file.name);
-
-  useEffect(() => {
-    if (isRenaming) setRenameValue(file.name);
-  }, [isRenaming, file.name]);
-
-  const paddingLeft = 8 + depth * 12;
-
-  return (
-    <li>
-      <div
-        className={`mo-tree-item${isSelected ? ' mo-tree-item--selected' : ''}`}
-        style={{ paddingLeft }}
-        data-testid={`tree-item-${file.path}`}
-        onContextMenu={(e) => onContextMenu(e, file)}
-      >
-        <button
-          type="button"
-          className={`mo-tree-item__chevron${file.isDirectory ? '' : ' mo-tree-item__chevron--hidden'}`}
-          aria-label={isOpen ? 'Collapse' : 'Expand'}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (file.isDirectory) onToggle(file.path);
-          }}
-        >
-          {file.isDirectory ? (isOpen ? '▼' : '▶') : ''}
-        </button>
-        <span className="mo-tree-item__icon" aria-hidden>
-          {fileIcon(file.name, file.isDirectory)}
-        </span>
-        {isRenaming ? (
-          <input
-            className="mo-tree-item__rename"
-            value={renameValue}
-            autoFocus
-            data-testid="explorer-rename-input"
-            onChange={(e) => setRenameValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') onRenameSubmit(file.path, renameValue);
-              if (e.key === 'Escape') onRenameCancel();
-            }}
-            onBlur={() => onRenameSubmit(file.path, renameValue)}
-          />
-        ) : (
-          <button
-            type="button"
-            className="mo-tree-item__label"
-            onClick={() => {
-              onSelect(file.path);
-              if (file.isDirectory) {
-                onToggle(file.path);
-              } else {
-                void onOpen(file.path);
-              }
-            }}
-          >
-            {file.name}
-            {file.isDirectory ? '/' : ''}
-          </button>
-        )}
-      </div>
-      {file.isDirectory && isOpen && file.children && file.children.length > 0 && (
-        <ul>
-          {file.children.map((child) => (
-            <TreeNode
-              key={child.path}
-              file={child}
-              depth={depth + 1}
-              selectedPath={selectedPath}
-              expanded={expanded}
-              onToggle={onToggle}
-              onSelect={onSelect}
-              onOpen={onOpen}
-              onContextMenu={onContextMenu}
-              renamingPath={renamingPath}
-              onRenameSubmit={onRenameSubmit}
-              onRenameCancel={onRenameCancel}
-            />
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-}
-
 function ExplorerView({
   workspace,
   editor,
@@ -282,8 +76,9 @@ function ExplorerView({
   const [files, setFiles] = useState<WorkspaceFile[]>([]);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+  const [contextTarget, setContextTarget] = useState<WorkspaceFile | null>(null);
   const [renamingPath, setRenamingPath] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const rootLabel = workspace.getRoot().replace(/^\//, '') || '.';
 
   const refresh = useCallback(async () => {
@@ -347,15 +142,6 @@ function ExplorerView({
     };
   }, [refresh, handleNewFile, handleNewFolder]);
 
-  const onToggle = (path: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(path)) next.delete(path);
-      else next.add(path);
-      return next;
-    });
-  };
-
   const notifyDeleted = (paths: string[]) => {
     window.dispatchEvent(new CustomEvent('molecule:file-deleted', { detail: { paths } }));
   };
@@ -394,82 +180,100 @@ function ExplorerView({
   };
 
   const handleContextAction = async (action: string, item: WorkspaceFile | null) => {
-    setContextMenu(null);
     const basePath = item?.isDirectory ? item.path : item ? item.path.slice(0, item.path.lastIndexOf('/')) : undefined;
     if (action === 'newFile') await handleNewFile(basePath || undefined);
     if (action === 'newFolder') await handleNewFolder(basePath || undefined);
     if (action === 'rename' && item) {
       setSelectedPath(item.path);
       setRenamingPath(item.path);
+      setRenameValue(item.name);
     }
     if (action === 'delete' && item) await handleDelete(item);
   };
 
+  const findFile = (path: string, list: WorkspaceFile[]): WorkspaceFile | null => {
+    for (const f of list) {
+      if (f.path === path) return f;
+      if (f.children) {
+        const found = findFile(path, f.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
   return (
-    <div className="mo-explorer" data-testid="explorer-view">
-      <div className="mo-explorer-toolbar" data-testid="explorer-toolbar">
-        <div className="mo-explorer-toolbar__root" title={rootLabel}>
-          <IconFolder />
-          <span>./{rootLabel === '.' ? '' : rootLabel}</span>
+    <div className="flex h-full flex-col" data-testid="explorer-view">
+      <div
+        className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-1.5"
+        data-testid="explorer-toolbar"
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-1 text-xs text-muted-foreground" title={rootLabel}>
+          <Icon_Folder className="size-3.5 shrink-0" aria-hidden />
+          <span className="truncate">./{rootLabel === '.' ? '' : rootLabel}</span>
         </div>
-        <button
-          type="button"
-          className="mo-explorer-toolbar__btn"
-          title="New File"
-          data-testid="explorer-new-file"
-          onClick={() => void handleNewFile()}
-        >
-          <IconFilePlus />
-        </button>
-        <button
-          type="button"
-          className="mo-explorer-toolbar__btn"
-          title="New Folder"
-          data-testid="explorer-new-folder"
-          onClick={() => void handleNewFolder()}
-        >
-          <IconFolderPlus />
-        </button>
-        <button
-          type="button"
-          className="mo-explorer-toolbar__btn"
-          title="Refresh"
-          data-testid="explorer-refresh"
-          onClick={() => void refresh()}
-        >
-          <IconRefresh />
-        </button>
+        <Button type="button" variant="ghost" size="icon-sm" title="New File" data-testid="explorer-new-file" onClick={() => void handleNewFile()}>
+          <Icon_FilePlus className="size-3.5" aria-hidden />
+        </Button>
+        <Button type="button" variant="ghost" size="icon-sm" title="New Folder" data-testid="explorer-new-folder" onClick={() => void handleNewFolder()}>
+          <Icon_FolderPlus className="size-3.5" aria-hidden />
+        </Button>
+        <Button type="button" variant="ghost" size="icon-sm" title="Refresh" data-testid="explorer-refresh" onClick={() => void refresh()}>
+          <Icon_RefreshCw className="size-3.5" aria-hidden />
+        </Button>
       </div>
-      <div className="mo-explorer-tree" data-testid="explorer-tree">
-        <ul>
-          {files.map((file) => (
-            <TreeNode
-              key={file.path}
-              file={file}
-              depth={0}
+
+      <ContextMenu
+        onOpenChange={(open) => {
+          if (!open) setContextTarget(null);
+        }}
+      >
+        <ContextMenuTrigger asChild>
+          <ScrollArea className="min-h-0 flex-1" data-testid="explorer-tree">
+            <FileTree
+              nodes={toTreeNodes(files)}
               selectedPath={selectedPath}
-              expanded={expanded}
-              onToggle={onToggle}
+              expandedPaths={expanded}
+              renamingPath={renamingPath}
+              renameValue={renameValue}
+              onToggle={(path) =>
+                setExpanded((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(path)) next.delete(path);
+                  else next.add(path);
+                  return next;
+                })
+              }
               onSelect={setSelectedPath}
               onOpen={onOpen}
-              onContextMenu={(e, item) => {
-                e.preventDefault();
-                setContextMenu({ x: e.clientX, y: e.clientY, item });
-              }}
-              renamingPath={renamingPath}
+              onRenameChange={setRenameValue}
               onRenameSubmit={(path, name) => void handleRenameSubmit(path, name)}
               onRenameCancel={() => setRenamingPath(null)}
+              renderIcon={(node) => fileIcon(node.name, node.isDirectory, expanded.has(node.path))}
+              onContextMenu={(e, node) => {
+                e.preventDefault();
+                const item = findFile(node.path, files);
+                setContextTarget(item ?? { path: node.path, name: node.name, isDirectory: node.isDirectory });
+              }}
             />
-          ))}
-        </ul>
-      </div>
-      {contextMenu && (
-        <ContextMenu
-          menu={contextMenu}
-          onClose={() => setContextMenu(null)}
-          onAction={(action, item) => void handleContextAction(action, item)}
-        />
-      )}
+          </ScrollArea>
+        </ContextMenuTrigger>
+        <ContextMenuContent data-testid="explorer-context-menu">
+          {(contextTarget?.isDirectory ?? true) && (
+            <>
+              <ContextMenuItem onClick={() => void handleContextAction('newFile', contextTarget)}>New File</ContextMenuItem>
+              <ContextMenuItem onClick={() => void handleContextAction('newFolder', contextTarget)}>New Folder</ContextMenuItem>
+              <ContextMenuSeparator />
+            </>
+          )}
+          {contextTarget && (
+            <>
+              <ContextMenuItem onClick={() => void handleContextAction('rename', contextTarget)}>Rename</ContextMenuItem>
+              <ContextMenuItem onClick={() => void handleContextAction('delete', contextTarget)}>Delete</ContextMenuItem>
+            </>
+          )}
+        </ContextMenuContent>
+      </ContextMenu>
     </div>
   );
 }
@@ -487,7 +291,7 @@ export const explorerPlugin: PluginModule = {
     version: '0.2.0',
     activationEvents: ['onStartup'],
     contributes: {
-      views: [{ id: 'explorer', name: 'Explorer', location: 'sidebar', icon: '◫' }],
+      views: [{ id: 'explorer', name: 'Explorer', location: 'sidebar', icon: 'explorer' }],
       commands: [
         { id: 'explorer.refresh', title: 'Explorer: Refresh' },
         { id: 'explorer.newFile', title: 'Explorer: New File' },

@@ -89,8 +89,23 @@ export function createConfigurationService(options: ConfigurationServiceOptions)
       }
     }
     if (bridge && typeof localStorage !== 'undefined') {
-      const theme = localStorage.getItem('molecule:theme');
-      if (theme) settings.theme.colorTheme = theme;
+      const raw = localStorage.getItem('molecule:theme');
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as { colorTheme?: string; colorMode?: MoleculeSettings['theme']['colorMode'] };
+          if (parsed.colorTheme) settings.theme.colorTheme = parsed.colorTheme;
+          if (parsed.colorMode) settings.theme.colorMode = parsed.colorMode;
+        } catch {
+          // Legacy plain theme id (vs-dark, vs-light, hc-black)
+          const legacyMap: Record<string, Partial<MoleculeSettings['theme']>> = {
+            'vs-dark': { colorTheme: 'default', colorMode: 'dark' },
+            'vs-light': { colorTheme: 'default', colorMode: 'light' },
+            'hc-black': { colorTheme: 'dracula', colorMode: 'dark' },
+          };
+          const migrated = legacyMap[raw] ?? { colorTheme: raw };
+          settings.theme = { ...settings.theme, ...migrated };
+        }
+      }
     }
   };
 
@@ -115,7 +130,26 @@ export function createConfigurationService(options: ConfigurationServiceOptions)
       await ensureLoaded();
       setByPath(settings as unknown as Record<string, unknown>, key, value);
       if (key === 'theme.colorTheme' && bridge && typeof localStorage !== 'undefined') {
-        localStorage.setItem('molecule:theme', String(value));
+        const current = localStorage.getItem('molecule:theme');
+        let stored: Record<string, string> = {};
+        try {
+          stored = current ? (JSON.parse(current) as Record<string, string>) : {};
+        } catch {
+          stored = {};
+        }
+        stored.colorTheme = String(value);
+        localStorage.setItem('molecule:theme', JSON.stringify(stored));
+      }
+      if (key === 'theme.colorMode' && bridge && typeof localStorage !== 'undefined') {
+        const current = localStorage.getItem('molecule:theme');
+        let stored: Record<string, string> = {};
+        try {
+          stored = current ? (JSON.parse(current) as Record<string, string>) : {};
+        } catch {
+          stored = { colorTheme: settings.theme.colorTheme };
+        }
+        stored.colorMode = String(value);
+        localStorage.setItem('molecule:theme', JSON.stringify(stored));
       }
       await persist();
       notify(key, value);
@@ -125,7 +159,21 @@ export function createConfigurationService(options: ConfigurationServiceOptions)
       await ensureLoaded();
       settings = mergeSettings(settings, patch);
       if (patch.theme?.colorTheme && bridge && typeof localStorage !== 'undefined') {
-        localStorage.setItem('molecule:theme', patch.theme.colorTheme);
+        localStorage.setItem(
+          'molecule:theme',
+          JSON.stringify({
+            colorTheme: patch.theme.colorTheme,
+            colorMode: patch.theme.colorMode ?? settings.theme.colorMode,
+          })
+        );
+      } else if (patch.theme?.colorMode && bridge && typeof localStorage !== 'undefined') {
+        localStorage.setItem(
+          'molecule:theme',
+          JSON.stringify({
+            colorTheme: patch.theme.colorTheme ?? settings.theme.colorTheme,
+            colorMode: patch.theme.colorMode,
+          })
+        );
       }
       await persist();
       notify('*', settings);

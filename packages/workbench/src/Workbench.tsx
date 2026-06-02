@@ -1,17 +1,30 @@
+import {
+  ActivityBar,
+  Button,
+  PanelContainer,
+  SashHandle,
+  StatusBar,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  ViewContainer,
+  resolveActivityIcon,
+  Icon_Sparkles,
+} from '@easyspace/ui';
 import { defaultL10n } from '@easyspace/plugin-api';
 import type { ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   AUXILIARY_MAX,
   AUXILIARY_MIN,
   PANEL_MAX,
   PANEL_MIN,
-  ResizeHandle,
   SIDEBAR_MAX,
   SIDEBAR_MIN,
 } from './ResizeHandle.js';
 import { ActivityBarSettings, type SettingsMenuAction } from './ActivityBarSettings.js';
+import { usePaneResize } from './usePaneResize.js';
 import { useWorkbenchStore } from './store.js';
 
 export interface WorkbenchProps {
@@ -20,10 +33,77 @@ export interface WorkbenchProps {
   onSettingsAction?: (action: SettingsMenuAction) => void;
 }
 
+function flexBasisPercent(percent: number): string {
+  return `0 0 ${percent}%`;
+}
+
+function PaneSash({
+  axis,
+  invert,
+  containerRef,
+  paneRef,
+  getPercent,
+  minPercent,
+  maxPercent,
+  onCommit,
+  'data-testid': testId,
+}: {
+  axis: 'horizontal' | 'vertical';
+  invert?: boolean;
+  containerRef: React.RefObject<HTMLElement | null>;
+  paneRef: React.RefObject<HTMLElement | null>;
+  getPercent: () => number;
+  minPercent: number;
+  maxPercent: number;
+  onCommit: (percent: number) => void;
+  'data-testid'?: string;
+}) {
+  const onPreview = useCallback(
+    (percent: number) => {
+      const pane = paneRef.current;
+      if (pane) pane.style.flex = flexBasisPercent(percent);
+    },
+    [paneRef]
+  );
+
+  const handleCommit = useCallback(
+    (percent: number) => {
+      const pane = paneRef.current;
+      if (pane) pane.style.flex = '';
+      onCommit(percent);
+    },
+    [onCommit, paneRef]
+  );
+
+  const { startResize } = usePaneResize({
+    direction: axis === 'horizontal' ? 'horizontal' : 'vertical',
+    minPercent,
+    maxPercent,
+    invert,
+    containerRef,
+    onPreview,
+    onCommit: handleCommit,
+  });
+
+  return (
+    <SashHandle
+      axis={axis}
+      data-testid={testId}
+      valueNow={Math.round(getPercent())}
+      valueMin={minPercent}
+      valueMax={maxPercent}
+      onPointerDown={startResize}
+    />
+  );
+}
+
 export function Workbench({ editor, onCommand, onSettingsAction }: WorkbenchProps) {
   const store = useWorkbenchStore();
   const [, setLocaleTick] = useState(0);
   const mainRef = useRef<HTMLDivElement>(null);
+  const sidebarPaneRef = useRef<HTMLElement>(null);
+  const panelPaneRef = useRef<HTMLDivElement>(null);
+  const auxiliaryPaneRef = useRef<HTMLElement>(null);
   const t = (key: string, fallback?: string) => defaultL10n.t(key, fallback);
 
   useEffect(() => {
@@ -31,6 +111,7 @@ export function Workbench({ editor, onCommand, onSettingsAction }: WorkbenchProp
     window.addEventListener('molecule:locale-changed', onLocale);
     return () => window.removeEventListener('molecule:locale-changed', onLocale);
   }, []);
+
   const editorRef = useRef<HTMLElement>(null);
   const sidebarViews = store.views.filter((v) => v.location === 'sidebar');
   const auxiliaryViews = store.views.filter((v) => v.location === 'auxiliaryBar');
@@ -45,7 +126,7 @@ export function Workbench({ editor, onCommand, onSettingsAction }: WorkbenchProp
   const activityItems = [
     ...sidebarViews.map((v) => ({
       id: v.id,
-      icon: v.icon ?? '◫',
+      icon: v.icon ?? 'explorer',
       title: v.title,
     })),
     ...store.extensionActivityItems
@@ -83,213 +164,244 @@ export function Workbench({ editor, onCommand, onSettingsAction }: WorkbenchProp
   };
 
   return (
-    <div className="mo-workbench" data-testid="workbench">
+    <div
+      className="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground text-[length:var(--ide-font-size)]"
+      data-testid="workbench"
+    >
       {store.menuBarVisible && (
-        <header className="mo-menubar" data-testid="menubar">
-          <div className="mo-menubar__group">
-            <span className="mo-menubar__label">{t('menu.file')}</span>
-            <button type="button" className="mo-menubar__item" onClick={() => runCommand('workbench.openReadme')}>
-              {t('menu.openReadme')}
-            </button>
-          </div>
-          <div className="mo-menubar__group">
-            <span className="mo-menubar__label">{t('menu.workspace')}</span>
-            <button
+        <header
+          className="flex h-[var(--ide-menubar-height)] shrink-0 items-center gap-1 border-b border-border bg-foreground/5 px-2"
+          data-testid="menubar"
+        >
+          <div className="flex items-center gap-0.5 pr-2">
+            <span className="px-2 text-xs text-muted-foreground">{t('menu.file')}</span>
+            <Button
               type="button"
-              className="mo-menubar__item"
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => runCommand('workbench.openReadme')}
+            >
+              {t('menu.openReadme')}
+            </Button>
+          </div>
+          <div className="flex items-center gap-0.5 pr-2">
+            <span className="px-2 text-xs text-muted-foreground">{t('menu.workspace')}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
               data-testid="menubar-select-workspace"
               onClick={() => runCommand('workbench.selectWorkspace')}
             >
               {t('menu.selectWorkspace')}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="mo-menubar__item"
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
               data-testid="menubar-new-workspace"
               onClick={() => runCommand('workbench.newWorkspace')}
             >
               {t('menu.newWorkspace')}
-            </button>
+            </Button>
           </div>
-          <div className="mo-menubar__group">
-            <span className="mo-menubar__label">{t('menu.view')}</span>
-            <button
+          <div className="flex items-center gap-0.5 pr-2">
+            <span className="px-2 text-xs text-muted-foreground">{t('menu.view')}</span>
+            <Button
               type="button"
-              className="mo-menubar__item"
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
               onClick={() => store.setSidebarVisible(!store.sidebarVisible)}
             >
               {t('menu.toggleSidebar')}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="mo-menubar__item"
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
               onClick={() => store.setPanelVisible(!store.panelVisible)}
             >
               {t('menu.togglePanel')}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="mo-menubar__item"
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
               onClick={() => store.setAuxiliaryBarVisible(!store.auxiliaryBarVisible)}
             >
               {t('menu.toggleAi')}
-            </button>
+            </Button>
           </div>
-          <div className="mo-menubar__group">
-            <span className="mo-menubar__label">{t('menu.help')}</span>
-            <button type="button" className="mo-menubar__item" onClick={() => runCommand('workbench.showCommands')}>
+          <div className="flex items-center gap-0.5">
+            <span className="px-2 text-xs text-muted-foreground">{t('menu.help')}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => runCommand('workbench.showCommands')}
+            >
               {t('menu.commandPalette')}
-            </button>
+            </Button>
           </div>
         </header>
       )}
 
-      <div className="mo-workbench__main" ref={mainRef}>
-        <nav className="mo-activity-bar" aria-label="Activity Bar">
-          <div className="mo-activity-bar__top">
-            {activityItems.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`mo-activity-bar__item${store.activeActivity === item.id ? ' mo-activity-bar__item--active' : ''}`}
-                title={item.title}
-                aria-label={item.title}
-                data-testid={`activity-${item.id}`}
-                onClick={() => {
-                  window.dispatchEvent(
-                    new CustomEvent('molecule:focus-sidebar-view', { detail: { viewId: item.id } })
-                  );
-                }}
-              >
-                {item.icon}
-              </button>
-            ))}
-            {auxiliaryViews.length > 0 && (
-              <button
-                type="button"
-                className={`mo-activity-bar__item${store.auxiliaryBarVisible ? ' mo-activity-bar__item--active' : ''}`}
-                title="AI"
-                aria-label="AI Chat"
-                data-testid="activity-ai"
-                onClick={() => store.setAuxiliaryBarVisible(!store.auxiliaryBarVisible)}
-              >
-                ✦
-              </button>
-            )}
-          </div>
-          {onSettingsAction && <ActivityBarSettings onAction={onSettingsAction} />}
-        </nav>
+      <div className="flex min-h-0 flex-1" ref={mainRef}>
+        <ActivityBar
+          items={[
+            ...activityItems.map((item) => ({
+              id: item.id,
+              title: item.title,
+              icon: resolveActivityIcon(item.icon, item.id),
+              active: store.activeActivity === item.id,
+              onClick: () => {
+                window.dispatchEvent(
+                  new CustomEvent('molecule:focus-sidebar-view', { detail: { viewId: item.id } })
+                );
+              },
+            })),
+            ...(auxiliaryViews.length > 0
+              ? [
+                  {
+                    id: 'ai',
+                    title: 'AI',
+                    icon: <Icon_Sparkles className="size-4" aria-hidden />,
+                    active: store.auxiliaryBarVisible,
+                    'data-testid': 'activity-ai',
+                    onClick: () => store.setAuxiliaryBarVisible(!store.auxiliaryBarVisible),
+                  },
+                ]
+              : []),
+          ]}
+          footer={onSettingsAction ? <ActivityBarSettings onAction={onSettingsAction} /> : undefined}
+        />
 
         {store.sidebarVisible && (
           <>
-            <aside
-              className="mo-sidebar"
-              style={{ flex: `0 0 ${store.sidebarWidth}%`, minWidth: 0 }}
+            <ViewContainer
+              ref={sidebarPaneRef}
+              title={activeSidebar?.title ?? 'Sidebar'}
+              style={{ flex: flexBasisPercent(store.sidebarWidth), minWidth: 0 }}
               data-testid="sidebar"
             >
-              <div className="mo-sidebar__header">{activeSidebar?.title ?? 'Sidebar'}</div>
-              <div className="mo-sidebar__content">{activeSidebar?.render()}</div>
-            </aside>
-            <ResizeHandle
+              {activeSidebar?.render()}
+            </ViewContainer>
+            <PaneSash
               axis="horizontal"
               data-testid="resize-sidebar"
               containerRef={mainRef}
+              paneRef={sidebarPaneRef}
               getPercent={() => store.sidebarWidth}
               minPercent={SIDEBAR_MIN}
               maxPercent={SIDEBAR_MAX}
-              onResize={store.setSidebarWidth}
+              onCommit={store.setSidebarWidth}
             />
           </>
         )}
 
-        <section className="mo-editor-area" ref={editorRef}>
-          <div className="mo-editor-area__main">{editor}</div>
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col" ref={editorRef}>
+          <div className="flex min-h-0 flex-1 flex-col">{editor}</div>
           {panelViews.length > 0 && store.panelVisible && (
             <>
-              <ResizeHandle
+              <PaneSash
                 axis="vertical"
+                invert
                 data-testid="resize-panel"
                 containerRef={editorRef}
+                paneRef={panelPaneRef}
                 getPercent={() => store.panelHeight}
                 minPercent={PANEL_MIN}
                 maxPercent={PANEL_MAX}
-                onResize={store.setPanelHeight}
+                onCommit={store.setPanelHeight}
               />
-              <div
-                className="mo-panel"
+              <PanelContainer
+                ref={panelPaneRef}
+                title={activePanel?.title ?? 'Panel'}
+                style={{ flex: flexBasisPercent(store.panelHeight), minHeight: 0 }}
                 data-testid="panel"
-                style={{ flex: `0 0 ${store.panelHeight}%`, minHeight: 0 }}
+                tabs={
+                  <Tabs
+                    value={store.activePanelView ?? panelViews[0]?.id}
+                    onValueChange={(id) => {
+                      store.setActivePanelView(id);
+                      store.setPanelVisible(true);
+                    }}
+                  >
+                    <TabsList className="w-full justify-start rounded-none border-b border-border bg-foreground/5">
+                      {panelViews.map((view) => (
+                        <TabsTrigger key={view.id} value={view.id} className="text-xs">
+                          {view.title}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </Tabs>
+                }
+                contentClassName="p-0 font-mono"
               >
-                <div className="mo-panel__tabs">
-                  {panelViews.map((view) => (
-                    <button
-                      key={view.id}
-                      type="button"
-                      className={`mo-tab${store.activePanelView === view.id ? ' mo-tab--active' : ''}`}
-                      onClick={() => {
-                        store.setActivePanelView(view.id);
-                        store.setPanelVisible(true);
-                      }}
-                    >
-                      {view.title}
-                    </button>
-                  ))}
-                </div>
-                <div className="mo-panel__content">{activePanel?.render()}</div>
-              </div>
+                {activePanel?.render()}
+              </PanelContainer>
             </>
           )}
         </section>
 
         {showAuxiliary && (
           <>
-            <ResizeHandle
+            <PaneSash
               axis="horizontal"
               invert
               data-testid="resize-auxiliary"
               containerRef={mainRef}
+              paneRef={auxiliaryPaneRef}
               getPercent={() => store.auxiliaryWidth}
               minPercent={AUXILIARY_MIN}
               maxPercent={AUXILIARY_MAX}
-              onResize={store.setAuxiliaryWidth}
+              onCommit={store.setAuxiliaryWidth}
             />
-            <aside
-              className="mo-auxiliary-bar"
+            <ViewContainer
+              ref={auxiliaryPaneRef}
+              title={activeAuxiliary.title}
+              style={{ flex: flexBasisPercent(store.auxiliaryWidth), minWidth: 0 }}
+              contentClassName="flex flex-col"
               data-testid="auxiliary-bar"
-              style={{ flex: `0 0 ${store.auxiliaryWidth}%`, minWidth: 0 }}
             >
-              <div className="mo-sidebar__header">{activeAuxiliary.title}</div>
-              <div
-                className="mo-sidebar__content"
-                style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
-              >
-                {activeAuxiliary.render()}
-              </div>
-            </aside>
+              {activeAuxiliary.render()}
+            </ViewContainer>
           </>
         )}
       </div>
 
       {store.statusBarVisible && (
-        <footer className="mo-status-bar" data-testid="status-bar">
-          {leftItems.map((item) => (
-            <span key={item.id} data-testid={`status-${item.id}`}>
-              {item.text}
-            </span>
-          ))}
-          {rightItems.map((item) => (
-            <span key={item.id} className="mo-status-bar__item--right">
-              {item.text}
-            </span>
-          ))}
-        </footer>
+        <StatusBar
+          leftItems={leftItems.map((i) => ({ id: i.id, text: i.text, alignment: 'left' }))}
+          rightItems={rightItems.map((i) => ({ id: i.id, text: i.text, alignment: 'right' }))}
+        />
       )}
 
       {toast && (
-        <div className="mo-notification-toast" role="status">
+        <div
+          className="fixed bottom-8 right-4 z-[var(--z-tooltip)] rounded-md bg-foreground px-3 py-2 text-sm text-background shadow-minimal"
+          role="status"
+        >
           {toast.message}
         </div>
       )}
     </div>
   );
 }
+
+// Re-export sash bounds for consumers
+export {
+  AUXILIARY_MAX,
+  AUXILIARY_MIN,
+  PANEL_MAX,
+  PANEL_MIN,
+  SIDEBAR_MAX,
+  SIDEBAR_MIN,
+} from './ResizeHandle.js';

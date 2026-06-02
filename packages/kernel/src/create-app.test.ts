@@ -7,7 +7,7 @@ describe('createApp', () => {
   it('parses default config', () => {
     const app = createApp();
     expect(app.config.defaultLocale).toBe('en-US');
-    expect(app.config.defaultThemeId).toBe('vs-dark');
+    expect(app.config.defaultThemeId).toBe('default');
   });
 
   it('emits lifecycle events', () => {

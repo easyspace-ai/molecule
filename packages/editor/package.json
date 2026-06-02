@@ -13,13 +13,14 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom --external monaco-editor --injectStyle",
-    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external monaco-editor",
+    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom --external monaco-editor --external @easyspace/ui --injectStyle",
+    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external monaco-editor --external @easyspace/ui",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@easyspace/plugin-api": "workspace:*",
+    "@easyspace/ui": "workspace:*",
     "@easyspace/workbench": "workspace:*",
     "monaco-editor": "^0.52.2",
     "zustand": "^5.0.2"

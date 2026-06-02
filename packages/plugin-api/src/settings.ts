@@ -8,6 +8,7 @@ export interface MoleculeSettings {
   };
   theme: {
     colorTheme: string;
+    colorMode: 'system' | 'light' | 'dark';
   };
   locale: string;
   search: {
@@ -33,9 +34,10 @@ export const DEFAULT_MOLECULE_SETTINGS: MoleculeSettings = {
     tabSize: 2,
   },
   theme: {
-    colorTheme: 'vs-dark',
+    colorTheme: 'default',
+    colorMode: 'system',
   },
-  locale: 'en',
+  locale: 'zh-CN',
   search: {
     exclude: ['**/node_modules/**', '**/.git/**'],
     useRegex: false,

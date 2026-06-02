@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef } from 'react';
 
 type Direction = 'horizontal' | 'vertical';
 
+/** VS Code-style dead zone before resize activates (px). */
+const DRAG_THRESHOLD_PX = 5;
+
 export interface UsePaneResizeOptions {
   direction: Direction;
   /** Minimum size as percentage of container (default 10). */
@@ -10,130 +13,272 @@ export interface UsePaneResizeOptions {
   maxPercent?: number;
   invert?: boolean;
   containerRef: React.RefObject<HTMLElement | null>;
-  onResize: (percent: number) => void;
+  /** Apply size to pane DOM during drag — avoid React/Zustand updates per frame. */
+  onPreview: (percent: number) => void;
+  /** Commit final size on pointer up (Zustand + layout persistence). */
+  onCommit: (percent: number) => void;
 }
 
 interface ResizeState {
-  isResizing: boolean;
+  pointerId: number;
+  startX: number;
+  startY: number;
   containerStart: number;
   containerSize: number;
+  lastPercent: number;
+  dragging: boolean;
   rafId: number | undefined;
+  pendingX: number;
+  pendingY: number;
+  sashTarget: HTMLElement;
+}
+
+const OVERLAY_CLASS = 'mo-resize-overlay';
+
+function ensureOverlay(): HTMLDivElement {
+  let overlay = document.querySelector<HTMLDivElement>(`.${OVERLAY_CLASS}`);
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = OVERLAY_CLASS;
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(overlay);
+  }
+  return overlay;
+}
+
+function removeOverlay(): void {
+  document.querySelector(`.${OVERLAY_CLASS}`)?.remove();
+}
+
+function axisDelta(direction: Direction, st: ResizeState, x: number, y: number): number {
+  return direction === 'horizontal' ? Math.abs(x - st.startX) : Math.abs(y - st.startY);
 }
 
 /**
- * Percentage-based pane resize with RAF smoothing and touch support.
- * Inspired by Pyxis usePaneResize; adapted for single-pane sizing.
+ * Percentage-based pane resize: drag threshold, deferred pointer capture,
+ * RAF-coalesced DOM preview, single store commit on release.
  */
 export function usePaneResize(options: UsePaneResizeOptions) {
-  const { direction, minPercent = 10, maxPercent = 50, invert = false, onResize, containerRef } =
-    options;
+  const {
+    direction,
+    minPercent = 10,
+    maxPercent = 50,
+    invert = false,
+    containerRef,
+    onPreview,
+    onCommit,
+  } = options;
 
-  const stateRef = useRef<ResizeState>({
-    isResizing: false,
-    containerStart: 0,
-    containerSize: 0,
-    rafId: undefined,
-  });
+  const stateRef = useRef<ResizeState | null>(null);
+  const onPreviewRef = useRef(onPreview);
+  const onCommitRef = useRef(onCommit);
+  const directionRef = useRef(direction);
 
-  const mouseMoveHandler = useRef<((e: MouseEvent) => void) | null>(null);
-  const mouseUpHandler = useRef<(() => void) | null>(null);
-  const touchMoveHandler = useRef<((e: TouchEvent) => void) | null>(null);
-  const touchEndHandler = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    onPreviewRef.current = onPreview;
+    onCommitRef.current = onCommit;
+    directionRef.current = direction;
+  }, [onPreview, onCommit, direction]);
 
-  const handleStop = useCallback(() => {
-    const state = stateRef.current;
-    if (!state.isResizing) return;
+  const calcPercent = useCallback(
+    (clientX: number, clientY: number, st: ResizeState): number => {
+      const dir = directionRef.current;
+      const pos = dir === 'horizontal' ? clientX : clientY;
+      let relativePos = pos - st.containerStart;
+      if (invert) {
+        relativePos = st.containerSize - relativePos;
+      }
+      const minPx = (minPercent * st.containerSize) / 100;
+      const maxPx = (maxPercent * st.containerSize) / 100;
+      const clamped = Math.max(minPx, Math.min(relativePos, maxPx));
+      return Math.round((clamped / st.containerSize) * 1000) / 10;
+    },
+    [invert, minPercent, maxPercent]
+  );
 
-    state.isResizing = false;
+  const calcPercentRef = useRef(calcPercent);
+  calcPercentRef.current = calcPercent;
 
-    if (state.rafId !== undefined) {
-      cancelAnimationFrame(state.rafId);
-      state.rafId = undefined;
-    }
+  const flushPreview = useCallback(() => {
+    const st = stateRef.current;
+    if (!st?.dragging) return;
+    st.rafId = undefined;
+    const percent = calcPercentRef.current(st.pendingX, st.pendingY, st);
+    if (percent === st.lastPercent) return;
+    st.lastPercent = percent;
+    onPreviewRef.current(percent);
+  }, []);
 
-    if (mouseMoveHandler.current) {
-      document.removeEventListener('mousemove', mouseMoveHandler.current);
-    }
-    if (mouseUpHandler.current) {
-      document.removeEventListener('mouseup', mouseUpHandler.current);
-    }
-    if (touchMoveHandler.current) {
-      document.removeEventListener('touchmove', touchMoveHandler.current);
-    }
-    if (touchEndHandler.current) {
-      document.removeEventListener('touchend', touchEndHandler.current);
-    }
+  const schedulePreview = useCallback((clientX: number, clientY: number) => {
+    const st = stateRef.current;
+    if (!st?.dragging) return;
+    st.pendingX = clientX;
+    st.pendingY = clientY;
+    if (st.rafId !== undefined) return;
+    st.rafId = requestAnimationFrame(flushPreview);
+  }, [flushPreview]);
 
+  const clearDragChrome = useCallback(() => {
+    const dir = directionRef.current;
     document.body.classList.remove(
-      direction === 'horizontal' ? 'mo-resize-col' : 'mo-resize-row'
+      'mo-resizing',
+      dir === 'horizontal' ? 'mo-resize-col' : 'mo-resize-row'
     );
     document.body.style.userSelect = '';
-  }, [direction]);
+    document.body.style.cursor = '';
+    document.body.style.touchAction = '';
+    removeOverlay();
+  }, []);
 
-  useEffect(() => () => handleStop(), [handleStop]);
+  const finishSessionRef = useRef<(commit: boolean) => void>(() => {});
+
+  const enterDragging = useCallback((st: ResizeState, ev: PointerEvent) => {
+    st.dragging = true;
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    try {
+      st.sashTarget.setPointerCapture(st.pointerId);
+    } catch {
+      finishSessionRef.current(false);
+      return;
+    }
+
+    const dir = directionRef.current;
+    document.body.classList.add(
+      'mo-resizing',
+      dir === 'horizontal' ? 'mo-resize-col' : 'mo-resize-row'
+    );
+    document.body.style.userSelect = 'none';
+    document.body.style.touchAction = 'none';
+    document.body.style.cursor = dir === 'horizontal' ? 'col-resize' : 'row-resize';
+    ensureOverlay();
+
+    const percent = calcPercentRef.current(ev.clientX, ev.clientY, st);
+    st.lastPercent = percent;
+    onPreviewRef.current(percent);
+  }, []);
+
+  const handlePointerMoveRef = useRef<(ev: PointerEvent) => void>(() => {});
+  const handlePointerUpRef = useRef<(ev: PointerEvent) => void>(() => {});
+
+  handlePointerMoveRef.current = (ev: PointerEvent) => {
+    const st = stateRef.current;
+    if (!st || ev.pointerId !== st.pointerId) return;
+
+    st.pendingX = ev.clientX;
+    st.pendingY = ev.clientY;
+
+    if (!st.dragging) {
+      if (axisDelta(directionRef.current, st, ev.clientX, ev.clientY) < DRAG_THRESHOLD_PX) {
+        return;
+      }
+      enterDragging(st, ev);
+      if (!st.dragging) return;
+    }
+
+    ev.preventDefault();
+    schedulePreview(ev.clientX, ev.clientY);
+  };
+
+  handlePointerUpRef.current = (ev: PointerEvent) => {
+    const st = stateRef.current;
+    if (!st || ev.pointerId !== st.pointerId) return;
+
+    st.pendingX = ev.clientX;
+    st.pendingY = ev.clientY;
+
+    if (st.dragging) {
+      ev.preventDefault();
+      finishSessionRef.current(true);
+    } else {
+      finishSessionRef.current(false);
+    }
+  };
+
+  const onDocumentPointerMove = useCallback((ev: PointerEvent) => {
+    handlePointerMoveRef.current(ev);
+  }, []);
+
+  const onDocumentPointerUp = useCallback((ev: PointerEvent) => {
+    handlePointerUpRef.current(ev);
+  }, []);
+
+  finishSessionRef.current = (commit: boolean) => {
+    const st = stateRef.current;
+    if (!st) return;
+
+    if (st.rafId !== undefined) {
+      cancelAnimationFrame(st.rafId);
+      st.rafId = undefined;
+    }
+
+    document.removeEventListener('pointermove', onDocumentPointerMove);
+    document.removeEventListener('pointerup', onDocumentPointerUp);
+    document.removeEventListener('pointercancel', onDocumentPointerUp);
+
+    if (st.dragging && st.sashTarget.hasPointerCapture(st.pointerId)) {
+      try {
+        st.sashTarget.releasePointerCapture(st.pointerId);
+      } catch {
+        /* already released */
+      }
+    }
+
+    if (commit && st.dragging) {
+      const finalPercent = calcPercentRef.current(st.pendingX, st.pendingY, st);
+      onPreviewRef.current(finalPercent);
+      onCommitRef.current(finalPercent);
+    }
+
+    if (st.dragging) {
+      clearDragChrome();
+    }
+
+    stateRef.current = null;
+  };
+
+  useEffect(
+    () => () => {
+      finishSessionRef.current(false);
+    },
+    []
+  );
 
   const startResize = useCallback(
-    (e: React.MouseEvent | React.TouchEvent | React.PointerEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.button !== 0 || stateRef.current) return;
 
       const container = containerRef.current;
       if (!container) return;
 
       const containerRect = container.getBoundingClientRect();
-      const state = stateRef.current;
-      state.isResizing = true;
-      state.containerStart = direction === 'horizontal' ? containerRect.left : containerRect.top;
-      state.containerSize =
-        direction === 'horizontal' ? containerRect.width : containerRect.height;
+      const containerSize =
+        directionRef.current === 'horizontal' ? containerRect.width : containerRect.height;
+      if (containerSize <= 0) return;
 
-      if (state.containerSize <= 0) return;
+      const containerStart =
+        directionRef.current === 'horizontal' ? containerRect.left : containerRect.top;
 
-      document.body.classList.add(
-        direction === 'horizontal' ? 'mo-resize-col' : 'mo-resize-row'
-      );
-      document.body.style.userSelect = 'none';
-
-      const handleMove = (clientX: number, clientY: number) => {
-        const st = stateRef.current;
-        if (st.rafId !== undefined) cancelAnimationFrame(st.rafId);
-
-        st.rafId = requestAnimationFrame(() => {
-          const pos = direction === 'horizontal' ? clientX : clientY;
-          let relativePos = pos - st.containerStart;
-          if (invert) {
-            relativePos = st.containerSize - relativePos;
-          }
-
-          const minPx = (minPercent * st.containerSize) / 100;
-          const maxPx = (maxPercent * st.containerSize) / 100;
-          const clamped = Math.max(minPx, Math.min(relativePos, maxPx));
-          const percent = (clamped / st.containerSize) * 100;
-
-          onResize(Math.round(percent * 10) / 10);
-          st.rafId = undefined;
-        });
+      stateRef.current = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        containerStart,
+        containerSize,
+        lastPercent: NaN,
+        dragging: false,
+        rafId: undefined,
+        pendingX: e.clientX,
+        pendingY: e.clientY,
+        sashTarget: e.currentTarget,
       };
 
-      mouseMoveHandler.current = (ev: MouseEvent) => {
-        ev.preventDefault();
-        handleMove(ev.clientX, ev.clientY);
-      };
-      mouseUpHandler.current = () => handleStop();
-
-      touchMoveHandler.current = (ev: TouchEvent) => {
-        ev.preventDefault();
-        const touch = ev.touches[0];
-        if (touch) handleMove(touch.clientX, touch.clientY);
-      };
-      touchEndHandler.current = () => handleStop();
-
-      document.addEventListener('mousemove', mouseMoveHandler.current);
-      document.addEventListener('mouseup', mouseUpHandler.current);
-      document.addEventListener('touchmove', touchMoveHandler.current, { passive: false });
-      document.addEventListener('touchend', touchEndHandler.current);
+      document.addEventListener('pointermove', onDocumentPointerMove);
+      document.addEventListener('pointerup', onDocumentPointerUp);
+      document.addEventListener('pointercancel', onDocumentPointerUp);
     },
-    [containerRef, direction, invert, minPercent, maxPercent, onResize, handleStop]
+    [containerRef, onDocumentPointerMove, onDocumentPointerUp]
   );
 
   return { startResize };

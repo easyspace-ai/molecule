@@ -9,20 +9,18 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./styles.css": "./dist/styles.css"
+    }
   },
   "files": ["dist"],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom && cp src/styles.css dist/styles.css",
-    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom",
+    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom --external @easyspace/ui",
+    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external @easyspace/ui",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@easyspace/plugin-api": "workspace:*",
-    "@radix-ui/react-scroll-area": "^1.2.2",
-    "@radix-ui/react-tabs": "^1.1.2",
+    "@easyspace/ui": "workspace:*",
     "zustand": "^5.0.2"
   },
   "peerDependencies": {

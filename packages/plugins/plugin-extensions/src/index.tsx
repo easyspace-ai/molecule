@@ -7,9 +7,8 @@ import {
   uninstallExtension,
   type ExtensionCatalogEntry,
 } from '@easyspace/plugin-runtime';
+import { Button, Input, ScrollArea, cn, Icon_Puzzle, resolveActivityIcon } from '@easyspace/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import './extensions.css';
 
 type MarketplaceTab = 'installed' | 'available';
 
@@ -46,66 +45,46 @@ function ExtensionCard({
 }) {
   return (
     <div
-      className="mo-extensions__card"
+      className="flex gap-2 border-b border-border px-3 py-2 hover:bg-foreground/5"
       data-testid={`extension-${entry.id}`}
       onDoubleClick={() => onOpenDetail(entry)}
     >
-      <span className="mo-extensions__icon" aria-hidden>
-        {entry.icon ?? '⊞'}
+      <span className="flex shrink-0 items-center text-lg" aria-hidden>
+        {entry.icon ? resolveActivityIcon(entry.icon, entry.id, 'size-5') : <Icon_Puzzle className="size-5" aria-hidden />}
       </span>
-      <div className="mo-extensions__meta">
-        <div className="mo-extensions__name-row">
-          <span className="mo-extensions__name">{entry.name}</span>
-          <span className="mo-extensions__version">v{entry.version}</span>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-medium">{entry.name}</span>
+          <span className="text-xs text-muted-foreground">v{entry.version}</span>
           {entry.installed && entry.enabled && (
-            <span className="mo-extensions__badge mo-extensions__badge--enabled" data-testid={`extension-badge-${entry.id}`}>
+            <span className="rounded bg-success/20 px-1.5 py-0.5 text-[10px] text-success" data-testid={`extension-badge-${entry.id}`}>
               Enabled
             </span>
           )}
           {entry.installed && !entry.enabled && (
-            <span className="mo-extensions__badge">Disabled</span>
+            <span className="rounded bg-foreground/10 px-1.5 py-0.5 text-[10px]">Disabled</span>
           )}
         </div>
-        {entry.description && <p className="mo-extensions__desc">{entry.description}</p>}
-        <p className="mo-extensions__id">{entry.id}</p>
+        {entry.description && <p className="text-xs text-muted-foreground">{entry.description}</p>}
+        <p className="font-mono text-[10px] text-muted-foreground">{entry.id}</p>
       </div>
-      <div className="mo-extensions__actions">
+      <div className="flex shrink-0 flex-col gap-1">
         {entry.installed ? (
           <>
-            <button
-              type="button"
-              className="mo-extensions__action"
-              data-testid={`extension-toggle-${entry.id}`}
-              onClick={() => onToggle(entry)}
-            >
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs" data-testid={`extension-toggle-${entry.id}`} onClick={() => onToggle(entry)}>
               {entry.enabled ? 'Disable' : 'Enable'}
-            </button>
-            <button
-              type="button"
-              className="mo-extensions__action"
-              data-testid={`extension-update-${entry.id}`}
-              onClick={() => onUpdate(entry)}
-            >
+            </Button>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs" data-testid={`extension-update-${entry.id}`} onClick={() => onUpdate(entry)}>
               Update
-            </button>
-            <button
-              type="button"
-              className="mo-extensions__action mo-extensions__action--danger"
-              data-testid={`extension-uninstall-${entry.id}`}
-              onClick={() => onUninstall(entry)}
-            >
+            </Button>
+            <Button type="button" variant="destructive" size="sm" className="h-7 text-xs" data-testid={`extension-uninstall-${entry.id}`} onClick={() => onUninstall(entry)}>
               Uninstall
-            </button>
+            </Button>
           </>
         ) : (
-          <button
-            type="button"
-            className="mo-extensions__action mo-extensions__action--primary"
-            data-testid={`extension-install-${entry.id}`}
-            onClick={() => onInstall(entry)}
-          >
+          <Button type="button" size="sm" className="h-7 text-xs" data-testid={`extension-install-${entry.id}`} onClick={() => onInstall(entry)}>
             Install
-          </button>
+          </Button>
         )}
       </div>
     </div>
@@ -184,11 +163,14 @@ function ExtensionsView({ extensionsBase }: { extensionsBase: string }) {
   };
 
   return (
-    <div className="mo-extensions" data-testid="extensions-view">
-      <div className="mo-extensions__tabs" data-testid="extensions-tabs">
+    <div className="flex h-full flex-col" data-testid="extensions-view">
+      <div className="flex border-b border-border" data-testid="extensions-tabs">
         <button
           type="button"
-          className={`mo-extensions__tab${tab === 'installed' ? ' mo-extensions__tab--active' : ''}`}
+          className={cn(
+            'flex-1 px-2 py-1.5 text-xs',
+            tab === 'installed' && 'border-b-2 border-b-accent bg-background'
+          )}
           data-testid="extensions-tab-installed"
           onClick={() => setTab('installed')}
         >
@@ -196,36 +178,33 @@ function ExtensionsView({ extensionsBase }: { extensionsBase: string }) {
         </button>
         <button
           type="button"
-          className={`mo-extensions__tab${tab === 'available' ? ' mo-extensions__tab--active' : ''}`}
+          className={cn(
+            'flex-1 px-2 py-1.5 text-xs',
+            tab === 'available' && 'border-b-2 border-b-accent bg-background'
+          )}
           data-testid="extensions-tab-available"
           onClick={() => setTab('available')}
         >
           Available ({availableCount})
         </button>
       </div>
-      <div className="mo-extensions__header">
-        <input
-          className="mo-extensions__search"
+      <div className="flex gap-2 border-b border-border p-2">
+        <Input
           type="search"
           placeholder="Search extensions…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           data-testid="extensions-search"
+          className="flex-1"
         />
-        <button
-          type="button"
-          className="mo-extensions__reload"
-          data-testid="extensions-reload"
-          title="Reload window to apply extension changes"
-          onClick={() => window.location.reload()}
-        >
+        <Button type="button" variant="outline" size="sm" data-testid="extensions-reload" title="Reload window to apply extension changes" onClick={() => window.location.reload()}>
           Reload
-        </button>
+        </Button>
       </div>
-      <div className="mo-extensions__list" data-testid="extensions-list">
-        {loading && <div className="mo-extensions__loading">Loading extensions…</div>}
+      <ScrollArea className="flex-1" data-testid="extensions-list">
+        {loading && <div className="p-3 text-sm text-muted-foreground">Loading extensions…</div>}
         {!loading && filtered.length === 0 && (
-          <div className="mo-extensions__empty">No extensions found</div>
+          <div className="p-3 text-sm text-muted-foreground">No extensions found</div>
         )}
         {!loading &&
           filtered.map((entry) => (
@@ -239,7 +218,7 @@ function ExtensionsView({ extensionsBase }: { extensionsBase: string }) {
               onOpenDetail={openDetail}
             />
           ))}
-      </div>
+      </ScrollArea>
     </div>
   );
 }
@@ -253,7 +232,7 @@ export const extensionsPlugin: PluginModule = {
     version: '0.1.0',
     activationEvents: ['onStartup'],
     contributes: {
-      views: [{ id: 'extensions', name: 'Extensions', location: 'sidebar', icon: '⊞' }],
+      views: [{ id: 'extensions', name: 'Extensions', location: 'sidebar', icon: 'extensions' }],
       commands: [{ id: 'extensions.focus', title: 'View: Show Extensions' }],
       keybindings: [{ command: 'extensions.focus', key: 'ctrl+shift+x' }],
     },

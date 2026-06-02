@@ -79,7 +79,7 @@ function TerminalView({ terminal }: { terminal: TerminalService }) {
     <div
       ref={containerRef}
       data-testid="panel-terminal"
-      style={{ width: '100%', height: '100%', minHeight: 120, padding: 4, boxSizing: 'border-box' }}
+      className="box-border h-full min-h-[120px] w-full p-1"
     />
   );
 }

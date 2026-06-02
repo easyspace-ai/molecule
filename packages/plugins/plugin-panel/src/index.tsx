@@ -1,14 +1,17 @@
 import type { PluginModule } from '@easyspace/plugin-api';
+import { ScrollArea } from '@easyspace/ui';
 import { useWorkbenchStore } from '@easyspace/workbench';
 
 function OutputView() {
   const logs = useWorkbenchStore((s) => s.panelLogs.output ?? []);
   return (
-    <div data-testid="panel-output">
-      {logs.map((line, i) => (
-        <div key={i}>{line}</div>
-      ))}
-    </div>
+    <ScrollArea className="h-full">
+      <div data-testid="panel-output" className="p-2 font-mono text-xs">
+        {logs.map((line, i) => (
+          <div key={i}>{line}</div>
+        ))}
+      </div>
+    </ScrollArea>
   );
 }
 

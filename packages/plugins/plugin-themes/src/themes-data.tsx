@@ -1,143 +1,211 @@
 import type { ThemeContribution } from '@easyspace/plugin-api';
-import { useEffect, useState } from 'react';
 
-export type ThemeChangeHandler = (themeId: string, monacoTheme: string) => void;
+import {
+  getMonacoTheme,
+  getShikiTheme,
+  isDarkOnlyTheme,
+  isScenicTheme,
+  migrateLegacyThemeId,
+  resolveColorMode,
+  resolveIsDark,
+  themeToCSS,
+  type ColorMode,
+  type ThemeState,
+} from './theme-config.js';
+import { getDefaultThemeState, getThemePreset, THEME_PRESETS } from './theme-presets.js';
+
+export type ThemeChangeHandler = (state: ThemeState, monacoTheme: string, shikiTheme: string) => void;
 
 export const THEME_STORAGE_KEY = 'molecule:theme';
 
+const STYLE_ID = 'molecule-theme-overrides';
+
 let onThemeChange: ThemeChangeHandler | null = null;
-let currentThemeId = 'vs-dark';
+let currentState: ThemeState = getDefaultThemeState();
+let systemPreferenceListener: (() => void) | null = null;
 
 export function getCurrentThemeId(): string {
-  return currentThemeId;
+  return currentState.colorTheme;
 }
 
-export function readPersistedThemeId(): string | null {
+export function getCurrentColorMode(): ColorMode {
+  return currentState.colorMode;
+}
+
+export function getThemeState(): ThemeState {
+  return { ...currentState };
+}
+
+function normalizeState(raw: Partial<ThemeState> & { colorTheme?: string }): ThemeState {
+  const colorTheme = raw.colorTheme ?? 'default';
+  const preset = getThemePreset(colorTheme);
+  if (!preset) {
+    return getDefaultThemeState();
+  }
+  return {
+    colorTheme,
+    colorMode: raw.colorMode ?? 'system',
+  };
+}
+
+export function readPersistedTheme(): ThemeState | null {
   if (typeof localStorage === 'undefined') return null;
-  return localStorage.getItem(THEME_STORAGE_KEY);
+  const raw = localStorage.getItem(THEME_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<ThemeState>;
+    if (parsed.colorTheme) {
+      return normalizeState(parsed);
+    }
+  } catch {
+    /* legacy plain string */
+  }
+
+  return normalizeState(migrateLegacyThemeId(raw));
 }
 
-export function writePersistedThemeId(id: string): void {
+/** @deprecated Use readPersistedTheme */
+export function readPersistedThemeId(): string | null {
+  return readPersistedTheme()?.colorTheme ?? null;
+}
+
+export function writePersistedTheme(state: ThemeState): void {
   if (typeof localStorage === 'undefined') return;
-  localStorage.setItem(THEME_STORAGE_KEY, id);
+  localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(state));
 }
 
-export function setInitialTheme(id: string): void {
-  currentThemeId = id;
+/** @deprecated Use writePersistedTheme */
+export function writePersistedThemeId(id: string): void {
+  writePersistedTheme({ ...currentState, colorTheme: id });
 }
 
-export const THEMES: ThemeContribution[] = [
-  { id: 'vs-dark', label: 'Dark+', uiTheme: 'vs-dark' },
-  { id: 'vs-light', label: 'Light+', uiTheme: 'vs' },
-  { id: 'hc-black', label: 'High Contrast', uiTheme: 'hc-black' },
-];
+export function setInitialTheme(state: ThemeState | string): void {
+  if (typeof state === 'string') {
+    currentState = normalizeState(migrateLegacyThemeId(state));
+  } else {
+    currentState = normalizeState(state);
+  }
+}
+
+function injectThemeCSS(preset: ReturnType<typeof getThemePreset>, isDark: boolean): void {
+  let styleEl = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = STYLE_ID;
+    document.head.appendChild(styleEl);
+  }
+
+  if (!preset || preset.id === 'default') {
+    styleEl.textContent = '';
+    return;
+  }
+
+  const cssVars = themeToCSS(preset, isDark);
+  styleEl.textContent = cssVars ? `:root {\n  ${cssVars}\n}` : '';
+}
+
+function applyDomTheme(state: ThemeState): void {
+  const preset = getThemePreset(state.colorTheme);
+  const isDark = resolveIsDark(preset, state.colorMode);
+  const resolvedMode = isDark ? 'dark' : 'light';
+  const root = document.documentElement;
+
+  root.classList.remove('light', 'dark');
+  root.classList.add(resolvedMode);
+
+  if (state.colorTheme && state.colorTheme !== 'default') {
+    root.dataset.theme = state.colorTheme;
+  } else {
+    delete root.dataset.theme;
+  }
+
+  if (isScenicTheme(preset)) {
+    root.dataset.scenic = 'true';
+    if (preset?.backgroundImage) {
+      root.style.setProperty('--background-image', `url("${preset.backgroundImage}")`);
+    }
+  } else {
+    delete root.dataset.scenic;
+    root.style.removeProperty('--background-image');
+  }
+
+  const themeModeUnsupported =
+    preset?.supportedModes &&
+    preset.supportedModes.length > 0 &&
+    !preset.supportedModes.includes(resolveColorMode(state.colorMode));
+
+  if (themeModeUnsupported || (state.colorMode === 'system' && isDarkOnlyTheme(preset))) {
+    root.dataset.themeMismatch = 'true';
+  } else {
+    delete root.dataset.themeMismatch;
+  }
+
+  root.style.colorScheme = isDark ? 'dark' : 'light';
+  injectThemeCSS(preset, isDark);
+}
+
+function ensureSystemPreferenceListener(): void {
+  if (typeof window === 'undefined' || systemPreferenceListener) return;
+
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const handler = () => {
+    if (currentState.colorMode === 'system') {
+      applyDomTheme(currentState);
+      notifyThemeChange();
+    }
+  };
+  mediaQuery.addEventListener('change', handler);
+  systemPreferenceListener = () => mediaQuery.removeEventListener('change', handler);
+}
+
+function notifyThemeChange(): void {
+  const preset = getThemePreset(currentState.colorTheme);
+  const isDark = resolveIsDark(preset, currentState.colorMode);
+  const monacoTheme = getMonacoTheme(isDark);
+  const shikiTheme = getShikiTheme(preset?.shikiTheme, isDark);
+  onThemeChange?.(currentState, monacoTheme, shikiTheme);
+}
+
+export const THEMES: ThemeContribution[] = THEME_PRESETS.map((preset) => ({
+  id: preset.id,
+  label: preset.name,
+  uiTheme: preset.supportedModes?.length === 1 && preset.supportedModes[0] === 'dark' ? 'vs-dark' : 'vs',
+}));
 
 export function setThemeChangeHandler(handler: ThemeChangeHandler): void {
   onThemeChange = handler;
 }
 
-export function applyTheme(id: string): void {
-  const theme = THEMES.find((t) => t.id === id) ?? THEMES[0];
-  currentThemeId = theme.id;
-  writePersistedThemeId(theme.id);
-  onThemeChange?.(theme.id, theme.uiTheme);
-  document.documentElement.dataset.theme = theme.id;
-  window.dispatchEvent(new CustomEvent('molecule:theme-changed', { detail: { id: theme.id } }));
-}
+export function applyTheme(colorThemeOrState: string | ThemeState, colorMode?: ColorMode): void {
+  const state: ThemeState =
+    typeof colorThemeOrState === 'string'
+      ? normalizeState({ colorTheme: colorThemeOrState, colorMode: colorMode ?? currentState.colorMode })
+      : normalizeState(colorThemeOrState);
 
-export function ThemePickerHost() {
-  const [open, setOpen] = useState(false);
-  const [activeId, setActiveId] = useState(currentThemeId);
+  currentState = state;
+  writePersistedTheme(state);
+  applyDomTheme(state);
+  ensureSystemPreferenceListener();
+  notifyThemeChange();
 
-  useEffect(() => {
-    const onTheme = (e: Event) => {
-      const id = (e as CustomEvent<{ id: string }>).detail?.id;
-      if (id) setActiveId(id);
-    };
-    window.addEventListener('molecule:theme-changed', onTheme);
-    return () => window.removeEventListener('molecule:theme-changed', onTheme);
-  }, []);
-
-  useEffect(() => {
-    const show = () => setOpen(true);
-    window.addEventListener('molecule:show-theme-picker', show);
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('molecule:show-theme-picker', show);
-      window.removeEventListener('keydown', onKey);
-    };
-  }, []);
-
-  if (!open) return null;
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Color Theme"
-      data-testid="theme-picker"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        paddingTop: 80,
-        zIndex: 2000,
-      }}
-      onClick={() => setOpen(false)}
-    >
-      <div
-        style={{
-          width: 400,
-          background: 'var(--mo-bg-secondary)',
-          border: '1px solid var(--mo-border)',
-          borderRadius: 6,
-          overflow: 'hidden',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div
-          style={{
-            padding: '12px 14px',
-            borderBottom: '1px solid var(--mo-border)',
-            fontSize: 11,
-            textTransform: 'uppercase',
-            color: 'var(--mo-fg-muted)',
-          }}
-        >
-          选择颜色主题
-        </div>
-        <ul style={{ listStyle: 'none', margin: 0, padding: '4px 0' }}>
-          {THEMES.map((t) => (
-            <li key={t.id}>
-              <button
-                type="button"
-                data-testid={`theme-picker-${t.id}`}
-                onClick={() => {
-                  applyTheme(t.id);
-                  setOpen(false);
-                }}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  padding: '10px 14px',
-                  border: 'none',
-                  background: activeId === t.id ? 'var(--mo-accent)' : 'transparent',
-                  color: activeId === t.id ? '#fff' : 'inherit',
-                  cursor: 'pointer',
-                }}
-              >
-                {t.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+  window.dispatchEvent(
+    new CustomEvent('molecule:theme-changed', {
+      detail: { id: state.colorTheme, colorMode: state.colorMode },
+    })
   );
 }
+
+export function applyColorMode(colorMode: ColorMode): void {
+  applyTheme({ ...currentState, colorMode });
+}
+
+export {
+  getMonacoTheme,
+  getShikiTheme,
+  migrateLegacyThemeId,
+  resolveIsDark,
+  type ColorMode,
+  type ThemeState,
+} from './theme-config.js';
+export { THEME_PRESETS } from './theme-presets.js';
