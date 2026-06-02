@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./embed": "./src/embed.ts"
+  },
   "scripts": {
     "dev": "vite",
     "build": "pnpm run -w build:extensions && tsc -b && vite build",
+    "analyze": "ANALYZE=true pnpm run -w build:extensions && tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "lint": "tsc -b --noEmit"
@@ -42,6 +46,7 @@
     "monaco-editor": "^0.52.2",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "rollup-plugin-visualizer": "^5.14.0"
   }
 }

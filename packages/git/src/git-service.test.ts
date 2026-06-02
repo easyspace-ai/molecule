@@ -16,6 +16,10 @@ describe('createGitService', () => {
         writeFile: async (path, content) => {
           await fs.writeFile(`/${path}`, content);
         },
+        createFile: async (path, content = '') => fs.writeFile(`/${path}`, content),
+        createDirectory: async () => {},
+        deletePath: async () => {},
+        renamePath: async () => {},
         listDirectory: async () => [],
         listFiles: () => ['README.md'],
         searchInFiles: async () => [],
@@ -44,6 +48,10 @@ describe('createGitService', () => {
         getRoot: () => '/test',
         readFile: async (path) => String(await fs.readFile(`/${path}`, { encoding: 'utf8' })),
         writeFile: async (path, content) => fs.writeFile(`/${path}`, content),
+        createFile: async (path, content = '') => fs.writeFile(`/${path}`, content),
+        createDirectory: async () => {},
+        deletePath: async () => {},
+        renamePath: async () => {},
         listDirectory: async () => [],
         listFiles: () => ['a.txt'],
         searchInFiles: async () => [],

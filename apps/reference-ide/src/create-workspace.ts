@@ -21,19 +21,21 @@ export function useMemoryWorkspace(): boolean {
 
 export interface ReferenceWorkspaceOptions {
   searchOptions?: () => SearchOptions;
+  seed?: Record<string, string>;
 }
 
 export async function createReferenceWorkspace(
   options: ReferenceWorkspaceOptions = {}
 ): Promise<WorkspaceAPI> {
+  const seed = options.seed ?? SAMPLE_WORKSPACE;
   if (useMemoryWorkspace()) {
-    return createMemoryWorkspace(SAMPLE_WORKSPACE, { searchOptions: options.searchOptions });
+    return createMemoryWorkspace(seed, { searchOptions: options.searchOptions });
   }
 
   const root = await getActiveWorkspaceRoot();
   const workspace = await createIndexedDbWorkspace({
     root,
-    seed: SAMPLE_WORKSPACE,
+    seed,
     searchOptions: options.searchOptions,
   });
   await warmIndexedDbWorkspace(workspace);

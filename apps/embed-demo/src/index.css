@@ -4,7 +4,7 @@
 @source "../../../packages/workbench/src/**/*.{ts,tsx}";
 @source "../../../packages/editor/src/**/*.{ts,tsx}";
 @source "../../../packages/plugins/**/src/**/*.{ts,tsx}";
-@source "../src/**/*.{ts,tsx}";
+@source "../reference-ide/src/**/*.{ts,tsx}";
 
 html,
 body,

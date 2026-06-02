@@ -6,6 +6,16 @@ import { useEffect, useRef } from 'react';
 
 import '@xterm/xterm/css/xterm.css';
 
+function readThemeColors(): { background: string; foreground: string; cursor: string } {
+  if (typeof document === 'undefined') {
+    return { background: '#1e1e1e', foreground: '#d4d4d4', cursor: '#d4d4d4' };
+  }
+  const root = getComputedStyle(document.documentElement);
+  const background = root.getPropertyValue('--background').trim() || '#1e1e1e';
+  const foreground = root.getPropertyValue('--foreground').trim() || '#d4d4d4';
+  return { background, foreground, cursor: foreground };
+}
+
 function TerminalView({ terminal }: { terminal: TerminalService }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sessionRef = useRef<ReturnType<TerminalAPI['createSession']> | null>(null);
@@ -21,13 +31,9 @@ function TerminalView({ terminal }: { terminal: TerminalService }) {
 
     const xterm = new Terminal({
       cursorBlink: true,
-      fontFamily: 'var(--mo-font-mono, Menlo, monospace)',
+      fontFamily: 'var(--font-mono, ui-monospace, Menlo, monospace)',
       fontSize: 13,
-      theme: {
-        background: '#1e1e1e',
-        foreground: '#d4d4d4',
-        cursor: '#d4d4d4',
-      },
+      theme: readThemeColors(),
     });
     const fitAddon = new FitAddon();
     xterm.loadAddon(fitAddon);
@@ -67,7 +73,15 @@ function TerminalView({ terminal }: { terminal: TerminalService }) {
     const resize = () => fitAddon.fit();
     window.addEventListener('resize', resize);
 
+    const syncTheme = () => xterm.options.theme = readThemeColors();
+    const themeObserver = new MutationObserver(syncTheme);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme', 'data-scenic'],
+    });
+
     return () => {
+      themeObserver.disconnect();
       window.removeEventListener('resize', resize);
       outputSub.dispose();
       delete (window as unknown as { __moleculeTerminalRun?: (line: string) => Promise<void> })

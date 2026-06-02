@@ -47,7 +47,7 @@ export function MonacoEditor({
       fontSize,
       tabSize,
       insertSpaces: true,
-      fontFamily: 'var(--mo-font-mono, Menlo, monospace)',
+      fontFamily: 'var(--font-mono, ui-monospace, Menlo, monospace)',
     });
     editorRef.current = editor;
 

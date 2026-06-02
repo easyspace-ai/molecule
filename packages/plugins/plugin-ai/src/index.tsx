@@ -2,6 +2,10 @@ import type { AIEditProposal, AIHostAPI, PluginModule } from '@easyspace/plugin-
 import { Button, Input, ScrollArea, cn, Icon_Send } from '@easyspace/ui';
 import { useCallback, useRef, useState } from 'react';
 
+import { ChatMarkdown } from './chat-markdown.js';
+import { ShikiDiffViewer } from './shiki-diff-viewer.js';
+import { ToolCallCard, type ToolCallEntry } from './tool-call-card.js';
+
 function DiffPreview({
   edits,
   onAccept,
@@ -38,10 +42,7 @@ function DiffPreview({
               </Button>
             ) : null}
           </div>
-          <pre className="mt-1 max-h-20 overflow-auto whitespace-pre-wrap font-mono text-[11px]">
-            {edit.newText.slice(0, 300)}
-            {edit.newText.length > 300 ? '…' : ''}
-          </pre>
+          <ShikiDiffViewer oldText={edit.oldText ?? ''} newText={edit.newText} className="mt-1" />
         </div>
       ))}
       <div className="mt-2 flex gap-2">
@@ -54,6 +55,12 @@ function DiffPreview({
       </div>
     </div>
   );
+}
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  text: string;
+  tools: ToolCallEntry[];
 }
 
 function ChatView({
@@ -69,7 +76,7 @@ function ChatView({
   onPendingEdits: (edits: AIEditProposal[]) => void;
   onApplyEdit: (edit: AIEditProposal) => Promise<void>;
 }) {
-  const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -78,11 +85,20 @@ function ChatView({
     const text = input.trim();
     if (!text || streaming) return;
     setInput('');
-    setMessages((m) => [...m, { role: 'user', text }]);
+    setMessages((m) => [...m, { role: 'user', text, tools: [] }]);
     setStreaming(true);
     abortRef.current = new AbortController();
     let assistant = '';
-    setMessages((m) => [...m, { role: 'assistant', text: '' }]);
+    let tools: ToolCallEntry[] = [];
+    setMessages((m) => [...m, { role: 'assistant', text: '', tools: [] }]);
+
+    const patchAssistant = (nextText: string, nextTools: ToolCallEntry[]) => {
+      setMessages((m) => {
+        const copy = [...m];
+        copy[copy.length - 1] = { role: 'assistant', text: nextText, tools: nextTools };
+        return copy;
+      });
+    };
 
     try {
       for await (const chunk of ai.streamChat(sessionId, text, abortRef.current.signal)) {
@@ -90,24 +106,25 @@ function ChatView({
           const incoming = chunk.edits ?? (chunk.edit ? [chunk.edit] : []);
           if (incoming.length) onPendingEdits(incoming);
         }
+        if (chunk.type === 'tool-call' && chunk.toolName) {
+          tools = [...tools, { name: chunk.toolName, status: 'running' }];
+          patchAssistant(assistant, tools);
+        }
+        if (chunk.type === 'tool-result' && chunk.toolName) {
+          tools = tools.map((t) =>
+            t.name === chunk.toolName
+              ? { ...t, status: 'done' as const, result: chunk.text }
+              : t
+          );
+          patchAssistant(assistant, tools);
+        }
         if (chunk.type === 'text' && chunk.text) {
           assistant += chunk.text;
-          setMessages((m) => {
-            const copy = [...m];
-            copy[copy.length - 1] = { role: 'assistant', text: assistant };
-            return copy;
-          });
-        }
-        if (chunk.type === 'tool-result' && chunk.text) {
-          assistant += `\n[tool] ${chunk.text}`;
-          setMessages((m) => {
-            const copy = [...m];
-            copy[copy.length - 1] = { role: 'assistant', text: assistant };
-            return copy;
-          });
+          patchAssistant(assistant, tools);
         }
         if (chunk.type === 'error') {
           assistant += `\nError: ${chunk.error}`;
+          patchAssistant(assistant, tools);
         }
       }
     } finally {
@@ -141,13 +158,28 @@ function ChatView({
             <div
               key={i}
               className={cn(
-                'max-w-[90%] whitespace-pre-wrap rounded-md px-2.5 py-2 text-sm',
+                'max-w-[90%] rounded-md px-2.5 py-2 text-sm',
                 msg.role === 'user'
                   ? 'ml-auto bg-accent text-background'
                   : 'bg-foreground/5 text-foreground'
               )}
             >
-              {msg.text || (streaming && msg.role === 'assistant' ? '…' : '')}
+              {msg.role === 'assistant' && msg.tools.length > 0 ? (
+                <div className="mb-2 space-y-1.5">
+                  {msg.tools.map((tool) => (
+                    <ToolCallCard key={tool.name} tool={tool} />
+                  ))}
+                </div>
+              ) : null}
+              {msg.role === 'assistant' ? (
+                msg.text ? (
+                  <ChatMarkdown source={msg.text} />
+                ) : streaming ? (
+                  <span className="text-muted-foreground">…</span>
+                ) : null
+              ) : (
+                <span className="whitespace-pre-wrap">{msg.text}</span>
+              )}
             </div>
           ))}
         </div>

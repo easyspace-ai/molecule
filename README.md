@@ -10,7 +10,7 @@ pnpm build
 pnpm dev
 ```
 
-Open http://localhost:5173 — Reference IDE with sample workspace, Explorer, Command Palette (`Ctrl+Shift+P` / `⌘⇧P`), and AI Chat (mock provider).
+Open http://localhost:5199 — Reference IDE with sample workspace, Explorer, Command Palette (`Ctrl+Shift+P` / `⌘⇧P`), and AI Chat (mock provider).
 
 ## Phase 1 features (Reference IDE)
 
@@ -25,9 +25,9 @@ See the full roadmap: **[DESIGN-ROADMAP](docs/DESIGN-ROADMAP.md)**.
 | Package | Description |
 |---------|-------------|
 | `@easyspace/kernel` | App lifecycle, config, events |
+| `@easyspace/ui` | Craft tokens, shadcn components, icons, IDE primitives |
 | `@easyspace/workbench` | VS Code–like layout shell |
 | `@easyspace/editor` | Monaco adapter + tabs |
-| `@easyspace/plugin-api` | Plugin manifest & host contracts |
 | `@easyspace/plugin-runtime` | Loader, registry, activation, keybindings |
 | `@easyspace/ai-host` | AI providers, context, tools |
 | `@easyspace/git` | isomorphic-git + WorkspaceAPI bridge |
@@ -40,7 +40,8 @@ See the full roadmap: **[DESIGN-ROADMAP](docs/DESIGN-ROADMAP.md)**.
 - `pnpm dev` — Reference IDE (Vite)
 - `pnpm build` — Build all packages (Turbo)
 - `pnpm test` — Vitest unit tests
-- `pnpm e2e` — Playwright (build + preview first in CI)
+- `pnpm analyze --filter=@easyspace/reference-ide` — Production build + bundle stats (`dist/stats.html`)
+- `node scripts/check-bundle.mjs` — Verify Monaco is split into a separate chunk (CI)
 
 ## Docs
 
@@ -50,7 +51,9 @@ See the full roadmap: **[DESIGN-ROADMAP](docs/DESIGN-ROADMAP.md)**.
 - [ADR 003: AI Host](docs/adr/003-ai-host.md)
 - [ADR 004: Workspace & settings](docs/adr/004-workspace-and-settings.md)
 - [ADR 005: Phase 6 host packages](docs/adr/005-phase6-host-packages.md)
+- [ADR 007: UI layer & embed-first](docs/adr/007-ui-layer-and-embed-first.md)
 - [Extension author guide](docs/EXTENSIONS.md)
+- **[Embed SDK guide](docs/EMBED.md)** — `createMoleculeIDE()` minimal host
 - [Legacy migration map](docs/MIGRATION-LEGACY.md)
 
 ## Legacy code

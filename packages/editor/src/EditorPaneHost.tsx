@@ -2,7 +2,7 @@ import { EditorTabs } from '@easyspace/workbench';
 import { cn } from '@easyspace/ui';
 import { ExtensionDetailTab } from './ExtensionDetailTab.js';
 import { useEditorStore } from './editor-store.js';
-import { MonacoEditor } from './MonacoEditor.js';
+import { LazyMonacoEditor } from './LazyMonacoEditor.js';
 
 function EditorPane({ paneId }: { paneId: string }) {
   const {
@@ -40,7 +40,7 @@ function EditorPane({ paneId }: { paneId: string }) {
           activeTab.kind === 'extension-detail' && activeTab.extensionDetail ? (
             <ExtensionDetailTab detail={activeTab.extensionDetail} />
           ) : (
-            <MonacoEditor
+            <LazyMonacoEditor
               key={`${paneId}-${activeTab.id}`}
               path={activeTab.uri}
               value={activeTab.content}

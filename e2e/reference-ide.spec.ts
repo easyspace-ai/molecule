@@ -330,4 +330,87 @@ test.describe('Reference IDE', () => {
     await expect(page.getByTestId('sidebar')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByTestId('sample-panel-view')).toBeVisible({ timeout: 10_000 });
   });
+
+  test('split editor creates two panes', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Command palette split is chromium-only in CI');
+
+    await waitForWorkbench(page);
+    await openExplorerFile(page, 'src/index.ts');
+    await expect(page.getByTestId('monaco-editor')).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+P');
+    await page.getByPlaceholder(/command/i).fill('Split Editor Horizontal');
+    await page.getByTestId('command-palette').getByText('View: Split Editor Horizontal').click();
+
+    await expect(page.getByTestId('editor-pane-primary')).toBeVisible();
+    await expect(page.locator('[data-testid^="editor-pane-"]:not([data-testid="editor-pane-host"]):not([data-testid="editor-pane-active"])')).toHaveCount(2);
+  });
+
+  test('memory workspace mode loads without IndexedDB persistence', async ({ page }) => {
+    await page.goto('/?memory');
+    await expect(page.getByTestId('molecule-loading')).toBeHidden({ timeout: 20_000 });
+    await expect(page.getByTestId('workbench')).toBeVisible({ timeout: 15_000 });
+    await openExplorerFile(page, 'src/index.ts');
+
+    const marker = `memory-${Date.now()}`;
+    await page.evaluate((m) => {
+      const append = (
+        window as unknown as { __moleculeAppend?: (uri: string, text: string) => void }
+      ).__moleculeAppend;
+      if (!append) throw new Error('Editor test hook unavailable');
+      append('src/index.ts', m);
+    }, marker);
+    await page.waitForTimeout(700);
+
+    await page.reload();
+    await page.goto('/?memory');
+    await expect(page.getByTestId('workbench')).toBeVisible({ timeout: 20_000 });
+    await openExplorerFile(page, 'src/index.ts');
+
+    const stillHasMarker = await page.evaluate(async (m) => {
+      const db = await new Promise<IDBDatabase | null>((resolve) => {
+        const req = indexedDB.open('molecule-workspace');
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => resolve(null);
+      });
+      if (!db) return false;
+      const content = await new Promise<string>((resolve, reject) => {
+        const tx = db.transaction('files', 'readonly');
+        const req = tx.objectStore('files').get('project/src/index.ts');
+        req.onsuccess = () => resolve(String(req.result ?? ''));
+        req.onerror = () => reject(req.error);
+      });
+      return content.includes(m);
+    }, marker);
+    expect(stillHasMarker).toBe(false);
+  });
+
+  test('keybinding override changes sidebar toggle shortcut', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Settings keybinding override is chromium-only in CI');
+
+    await waitForWorkbench(page);
+    await openExplorer(page);
+
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('molecule:open-settings'));
+    });
+    await expect(page.getByTestId('settings-view')).toBeVisible({ timeout: 10_000 });
+    await page.getByTestId('settings-keybinding-workbench.action.toggleSidebarVisibility').fill('ctrl+shift+b');
+    await page.waitForTimeout(200);
+
+    await page.keyboard.press('Control+b');
+    await expect(page.getByTestId('sidebar')).toBeVisible();
+
+    await page.keyboard.press('Control+Shift+b');
+    await expect(page.getByTestId('sidebar')).toBeHidden();
+  });
+
+  test('AI tool call renders tool card and markdown', async ({ page }) => {
+    await waitForWorkbench(page);
+    await expect(page.getByTestId('ai-chat')).toBeVisible();
+    await page.getByPlaceholder('Message AI…').fill('please run tool');
+    await page.getByTestId('ai-send').click();
+    await expect(page.getByTestId('ai-tool-readActiveFile')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('chat-markdown-code')).toBeVisible();
+  });
 });

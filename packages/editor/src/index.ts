@@ -1,4 +1,5 @@
 export { MonacoEditor, type MonacoEditorProps } from './MonacoEditor.js';
+export { LazyMonacoEditor } from './LazyMonacoEditor.js';
 export { EditorArea } from './EditorPaneHost.js';
 export { EditorPaneHost } from './EditorPaneHost.js';
 export {

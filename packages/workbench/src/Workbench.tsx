@@ -26,6 +26,7 @@ import {
 import { ActivityBarSettings, type SettingsMenuAction } from './ActivityBarSettings.js';
 import { usePaneResize } from './usePaneResize.js';
 import { useWorkbenchStore } from './store.js';
+import { ViewErrorBoundary } from './ViewErrorBoundary.js';
 
 export interface WorkbenchProps {
   editor: ReactNode;
@@ -291,7 +292,9 @@ export function Workbench({ editor, onCommand, onSettingsAction }: WorkbenchProp
               style={{ flex: flexBasisPercent(store.sidebarWidth), minWidth: 0 }}
               data-testid="sidebar"
             >
-              {activeSidebar?.render()}
+              <ViewErrorBoundary viewId={activeSidebar?.id}>
+                {activeSidebar?.render()}
+              </ViewErrorBoundary>
             </ViewContainer>
             <PaneSash
               axis="horizontal"
@@ -345,7 +348,9 @@ export function Workbench({ editor, onCommand, onSettingsAction }: WorkbenchProp
                 }
                 contentClassName="p-0 font-mono"
               >
-                {activePanel?.render()}
+                <ViewErrorBoundary viewId={activePanel?.id}>
+                  {activePanel?.render()}
+                </ViewErrorBoundary>
               </PanelContainer>
             </>
           )}
@@ -371,7 +376,9 @@ export function Workbench({ editor, onCommand, onSettingsAction }: WorkbenchProp
               contentClassName="flex flex-col"
               data-testid="auxiliary-bar"
             >
-              {activeAuxiliary.render()}
+              <ViewErrorBoundary viewId={activeAuxiliary.id}>
+                {activeAuxiliary.render()}
+              </ViewErrorBoundary>
             </ViewContainer>
           </>
         )}

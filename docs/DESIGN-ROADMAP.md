@@ -10,7 +10,7 @@
 
 | Layer | Role | Location |
 |-------|------|----------|
-| **Framework** | Reusable packages: kernel, workbench, editor, plugin-api, plugin-runtime, ai-host | `packages/*` |
+| **Framework** | Reusable packages: kernel, workbench, editor, **ui**, plugin-api, plugin-runtime, ai-host | `packages/*` |
 | **Official plugins** | Explorer, search, themes, AI, panel — same contract as third-party | `packages/plugins/*` |
 | **Reference IDE** | End-to-end showcase; not the only consumer | `apps/reference-ide` |
 | **Legacy Molecule** | Read-only reference | repository root `src/` |
@@ -33,9 +33,10 @@ Molecule Next optimizes for **embeddability** and **AI-era extensibility**. Pyxi
 | Workbench layout | Built-in slots | `@easyspace/workbench` + Zustand | Custom flex + % panes |
 | Plugin system | `IExtension` | `PluginModule` + Zod manifest | esbuild npm extensions |
 | Editor | Monaco override stack | `@easyspace/editor` adapter | Monaco + diff tabs |
-| Workspace | Host-provided | Memory (Phase 1) | IndexedDB FS |
-| Git / SCM | N/A | Planned plugin | isomorphic-git |
-| Terminal | N/A | Planned plugin | Node emulator + xterm |
+| Workspace | Host-provided | **IndexedDB** (default) + memory fallback | IndexedDB FS |
+| Git / SCM | N/A | `@easyspace/git` + plugin-scm | isomorphic-git |
+| Terminal | N/A | Built-in shell + xterm (**frozen**, no PTY) | Node emulator + xterm |
+| UI / Theme | Legacy SCSS | `@easyspace/ui` + Craft OKLCH + 15 presets | Custom |
 | Search | Basic | Sync in-memory | Web Worker + globs |
 | Settings | Molecule settings service | localStorage + session layout | `.pyxis/settings.json` |
 | Keybindings | Monaco KeybindingService | Registry + hook (Phase 1) | Full chord + persistence |
@@ -55,6 +56,7 @@ graph TB
     REF[reference-ide]
   end
   subgraph packages
+    UI_PKG[ui]
     K[kernel]
     WB[workbench]
     ED[editor]
@@ -68,6 +70,9 @@ graph TB
   REF --> ED
   REF --> RT
   REF --> PL
+  WB --> UI_PKG
+  ED --> UI_PKG
+  PL --> UI_PKG
   RT --> API
   PL --> API
   K --> API
@@ -221,7 +226,18 @@ graph LR
 | i18n expansion | plugin-i18n | en, zh-CN, ja; extension localizations |
 | ADR 005 | docs | Package boundaries documented |
 
-**Deferred:** Tauri desktop shell, full Pyxis terminal emulator, extension signing/marketplace.
+**Deferred:** Tauri desktop shell, extension signing/marketplace, Terminal PTY (strategy frozen).
+
+### Phase 7 — UI convergence & embed-first (current)
+
+| Deliverable | Owner | Acceptance |
+|-------------|-------|------------|
+| `@easyspace/ui` | packages/ui | Craft tokens, shadcn, icons, IDE components |
+| CSS migration | ui + plugins | No orphan `--mo-*` CSS |
+| ADR 007 | docs | Embed-first documented |
+| Monaco lazy load | editor | Dynamic import |
+| ErrorBoundary | workbench | Plugin view isolation |
+| Embed SDK | reference-ide + embed-demo | `MoleculeIDE` props + minimal host |
 
 ### Phase 5 — Session, UX, i18n, AI edits (done)
 
@@ -379,4 +395,5 @@ subscribeThemePersistence();
 - [ADR 002: Plugin system](adr/002-plugin-system.md)
 - [ADR 003: AI Host](adr/003-ai-host.md)
 - [ADR 004: Workspace & settings](adr/004-workspace-and-settings.md)
+- [ADR 007: UI layer & embed-first](adr/007-ui-layer-and-embed-first.md)
 - [Legacy migration map](MIGRATION-LEGACY.md)

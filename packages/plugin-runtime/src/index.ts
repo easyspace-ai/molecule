@@ -66,5 +66,6 @@ export {
   type ExtensionIndex,
   type LoadExtensionResult,
 } from './extension-loader.js';
-export { createHttpWorkspaceClient } from './http-workspace-client.js';
+export { createHttpWorkspaceClient, type HttpWorkspaceClientOptions } from './http-workspace-client.js';
+export { createHttpWorkspace, type HttpWorkspaceOptions } from './http-workspace.js';
 export { buildWorkspaceTree } from './workspace-tree.js';

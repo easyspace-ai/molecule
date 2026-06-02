@@ -174,7 +174,16 @@ export function createMockProvider(id = 'mock'): AIProvider {
             newText: '# Molecule Next',
           },
         };
-        yield { type: 'text', text: 'Proposed an edit to README.md — review in the AI panel.' };
+        yield { type: 'text', text: 'Proposed an edit to **README.md** — review in the AI panel.' };
+        return;
+      }
+      if (lower.includes('run tool') || lower.includes('use tool')) {
+        yield { type: 'tool-call', toolName: 'readActiveFile' };
+        yield { type: 'tool-result', toolName: 'readActiveFile', text: 'README.md (42 lines)' };
+        yield {
+          type: 'text',
+          text: 'Read the active file via tool.\n\n```typescript\nexport const ok = true;\n```',
+        };
         return;
       }
       const reply = `Mock response to: ${prompt.slice(0, 80)}...`;

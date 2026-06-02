@@ -65,6 +65,7 @@ import {
   getActiveWorkspaceRoot,
   switchWorkspaceRoot,
 } from './create-workspace.js';
+import type { MoleculeIDEProps } from './molecule-ide-types.js';
 import { SAMPLE_WORKSPACE } from './workspace.js';
 
 const keybindingRegistry = createDefaultKeybindingRegistry();
@@ -148,20 +149,24 @@ const referenceCommandsPlugin: PluginModule = {
   },
 };
 
-function buildPlugins(): PluginModule[] {
-  return [
+function buildPlugins(preset: 'full' | 'minimal' = 'full'): PluginModule[] {
+  const core: PluginModule[] = [
     i18nPlugin,
-    helloPlugin,
     createThemesPlugin(() => configurationRef.current ?? undefined),
     explorerPlugin,
+    commandsPlugin,
+    referenceCommandsPlugin,
+  ];
+  if (preset === 'minimal') return core;
+  return [
+    ...core,
+    helloPlugin,
     extensionsPlugin,
     searchPlugin,
     scmPlugin,
     panelPlugin,
     terminalPlugin,
     testPanePlugin,
-    commandsPlugin,
-    referenceCommandsPlugin,
     aiPlugin,
   ];
 }
@@ -203,7 +208,13 @@ function languageIdForPath(path: string): string {
   return 'plaintext';
 }
 
-export function MoleculeIDE() {
+export function MoleculeIDE({
+  preset = 'full',
+  workspaceFactory = createReferenceWorkspace,
+  seedFiles,
+  loadExtensions = preset === 'full',
+  onReady,
+}: MoleculeIDEProps = {}) {
   const managerRef = useRef<PluginManager | null>(null);
   const workspaceRef = useRef<WorkspaceAPI | null>(null);
   const layoutRef = useRef<{
@@ -239,8 +250,9 @@ export function MoleculeIDE() {
 
       restoreLayoutFromStorage();
 
-      const workspace = await createReferenceWorkspace({
+      const workspace = await workspaceFactory({
         searchOptions: () => searchOptionsRef.current,
+        seed: seedFiles,
       });
       workspaceRef.current = workspace;
       const workspaceRoot = await getActiveWorkspaceRoot();
@@ -316,9 +328,16 @@ export function MoleculeIDE() {
         }
       });
 
-      const builtinPlugins = buildPlugins();
+      const builtinPlugins = buildPlugins(preset);
+      const extensionLoad = loadExtensions
+        ? await loadExtensionPlugins('/extensions')
+        : {
+            plugins: [] as PluginModule[],
+            localizations: [] as { locale: string; translations: Record<string, string> }[],
+            manifests: [],
+          };
       const { plugins: extensionPlugins, localizations, manifests: extensionManifests } =
-        await loadExtensionPlugins('/extensions');
+        extensionLoad;
       registerExtensionLocalizations(localizations);
       const plugins = [...builtinPlugins, ...extensionPlugins];
       const app = createApp({
@@ -496,6 +515,7 @@ export function MoleculeIDE() {
       }
 
       setReady(true);
+      onReady?.();
 
       (window as unknown as { __moleculeAppend?: (uri: string, text: string) => void }).__moleculeAppend =
         (uri, text) => {
@@ -662,13 +682,7 @@ export function MoleculeIDE() {
     return (
       <div
         data-testid="molecule-loading"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          color: 'var(--mo-fg-muted)',
-        }}
+        className="flex h-screen items-center justify-center text-muted-foreground"
       >
         Loading workspace…
       </div>
