@@ -1,4 +1,4 @@
-import { AIHost, createMockProvider, createOpenAICompatibleProvider } from '@easyspace/ai-host';
+import { AIHost, createMockProvider, createOpenAICompatibleProvider, PiRemoteProvider } from '@jiulimiai/ai-host';
 import {
   captureTabSession,
   createDebouncedWorkspaceTabSessionWriter,
@@ -8,11 +8,11 @@ import {
   restoreTabSession,
   setupEditorAutoSave,
   useEditorStore,
-} from '@easyspace/editor';
-import { createApp } from '@easyspace/kernel';
-import { aiPlugin } from '@easyspace/plugin-ai';
-import type { ConfigurationAPI, ExtensionDetailData, PluginModule, StatusBarItem, WorkspaceAPI } from '@easyspace/plugin-api';
-import { DEFAULT_MOLECULE_SETTINGS } from '@easyspace/plugin-api';
+} from '@jiulimiai/editor';
+import { createApp } from '@jiulimiai/kernel';
+import { aiPlugin } from '@jiulimiai/plugin-ai';
+import type { ConfigurationAPI, ExtensionDetailData, PluginModule, StatusBarItem, WorkspaceAPI } from '@jiulimiai/plugin-api';
+import { DEFAULT_MOLECULE_SETTINGS } from '@jiulimiai/plugin-api';
 import {
   CommandPaletteHost,
   commandsPlugin,
@@ -20,13 +20,13 @@ import {
   QuickPickHost,
   setCommandPaletteApi,
   useKeybindings,
-} from '@easyspace/plugin-commands';
-import { i18nPlugin, registerExtensionLocalizations } from '@easyspace/plugin-i18n';
-import { explorerPlugin } from '@easyspace/plugin-explorer';
-import { extensionsPlugin } from '@easyspace/plugin-extensions';
-import { helloPlugin } from '@easyspace/plugin-hello';
-import { panelPlugin } from '@easyspace/plugin-panel';
-import { scmPlugin } from '@easyspace/plugin-scm';
+} from '@jiulimiai/plugin-commands';
+import { i18nPlugin, registerExtensionLocalizations } from '@jiulimiai/plugin-i18n';
+import { explorerPlugin } from '@jiulimiai/plugin-explorer';
+import { extensionsPlugin } from '@jiulimiai/plugin-extensions';
+import { helloPlugin } from '@jiulimiai/plugin-hello';
+import { panelPlugin } from '@jiulimiai/plugin-panel';
+import { scmPlugin } from '@jiulimiai/plugin-scm';
 import {
   applyKeybindingOverrides,
   createConfigurationService,
@@ -36,9 +36,9 @@ import {
   createTerminalService,
   loadExtensionPlugins,
   PluginManager,
-} from '@easyspace/plugin-runtime';
-import { searchPlugin } from '@easyspace/plugin-search';
-import { terminalPlugin } from '@easyspace/plugin-terminal';
+} from '@jiulimiai/plugin-runtime';
+import { searchPlugin } from '@jiulimiai/plugin-search';
+import { terminalPlugin } from '@jiulimiai/plugin-terminal';
 import {
   applyTheme,
   createThemesPlugin,
@@ -47,8 +47,8 @@ import {
   setInitialTheme,
   setThemeChangeHandler,
   ThemePickerHost,
-} from '@easyspace/plugin-themes';
-import { testPanePlugin } from '@easyspace/plugin-test-pane';
+} from '@jiulimiai/plugin-themes';
+import { testPanePlugin } from '@jiulimiai/plugin-test-pane';
 import {
   applyPersistedLayout,
   normalizeLayoutPercent,
@@ -56,7 +56,7 @@ import {
   useWorkbenchStore,
   Workbench,
   writePersistedLayout,
-} from '@easyspace/workbench';
+} from '@jiulimiai/workbench';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -348,7 +348,23 @@ export function MoleculeIDE({
       const editorHost = createEditorHost();
       const aiHost = new AIHost(true);
       const aiSettings = settings.ai;
-      if (aiSettings.provider === 'openai-compatible' && aiSettings.openaiCompatible.apiKey) {
+      if (aiSettings.provider === 'pi-remote') {
+        const piProvider = new PiRemoteProvider({
+          baseUrl: aiSettings.piRemote.baseUrl,
+          model: aiSettings.piRemote.model,
+          thinkingLevel: aiSettings.piRemote.thinkingLevel,
+        });
+        aiHost.registerProvider(piProvider);
+        // Update status bar with model info
+        void piProvider.getModels().then(() => {
+          statusBarItems.set('ai-status', {
+            id: 'ai-status',
+            text: piProvider.getModelStatusLine(),
+            alignment: 'right',
+          });
+          wb.setStatusBarItems([...statusBarItems.values()]);
+        });
+      } else if (aiSettings.provider === 'openai-compatible' && aiSettings.openaiCompatible.apiKey) {
         aiHost.registerProvider(
           createOpenAICompatibleProvider({
             id: 'openai-compatible',

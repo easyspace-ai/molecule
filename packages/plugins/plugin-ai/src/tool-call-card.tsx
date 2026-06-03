@@ -1,4 +1,4 @@
-import { cn } from '@easyspace/ui';
+import { cn } from '@jiulimiai/ui';
 
 export interface ToolCallEntry {
   name: string;

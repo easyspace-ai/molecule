@@ -2,7 +2,7 @@ import {
   pluginManifestSchema,
   type PluginContext,
   type PluginModule,
-} from '@easyspace/plugin-api';
+} from '@jiulimiai/plugin-api';
 
 import { createPluginContext, type HostServices } from './host-context.js';
 import { registerManifestKeybindings } from './keybindings.js';

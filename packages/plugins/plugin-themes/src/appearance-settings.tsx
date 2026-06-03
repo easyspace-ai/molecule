@@ -1,5 +1,5 @@
-import type { ConfigurationAPI } from '@easyspace/plugin-api';
-import { defaultL10n } from '@easyspace/plugin-api';
+import type { ConfigurationAPI } from '@jiulimiai/plugin-api';
+import { defaultL10n } from '@jiulimiai/plugin-api';
 import {
   Button,
   cn,
@@ -12,7 +12,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@easyspace/ui';
+} from '@jiulimiai/ui';
 import { useEffect, useState } from 'react';
 
 import type { ColorMode } from './theme-config.js';

@@ -1,0 +1,20 @@
+{
+  "name": "@jiulimiai/pi-server",
+  "version": "0.1.0",
+  "description": "Molecule Next pi AI server — spawns local pi in RPC mode and exposes SSE endpoint",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsup src/index.ts --format esm --dts --clean --target node22",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

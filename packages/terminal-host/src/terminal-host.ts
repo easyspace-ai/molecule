@@ -1,4 +1,4 @@
-import type { Disposable, WorkspaceAPI } from '@easyspace/plugin-api';
+import type { Disposable, WorkspaceAPI } from '@jiulimiai/plugin-api';
 
 export type TerminalCommandHandler = (args: string[]) => Promise<string> | string;
 

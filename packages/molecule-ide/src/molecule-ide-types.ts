@@ -1,4 +1,4 @@
-import type { WorkspaceAPI } from '@easyspace/plugin-api';
+import type { WorkspaceAPI } from '@jiulimiai/plugin-api';
 
 /** Plugin bundle preset for embed hosts. */
 export type MoleculeIDEPluginPreset = 'full' | 'minimal';

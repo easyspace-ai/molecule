@@ -21,7 +21,7 @@ The Reference IDE uses an in-memory workspace seeded at startup. Pyxis-CodeCanva
 
 3. **Layout model**: workbench stores **percentage** dimensions (sidebar, auxiliary, panel) with min/max bounds; hosts persist and restore via `molecule:layout`.
 
-4. **Keybindings**: declarative contributions in manifest + runtime registry in `@easyspace/plugin-runtime`; UI hosts wire `useKeybindings` to execute commands.
+4. **Keybindings**: declarative contributions in manifest + runtime registry in `@jiulimiai/plugin-runtime`; UI hosts wire `useKeybindings` to execute commands.
 
 ## Consequences
 

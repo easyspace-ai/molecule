@@ -1,4 +1,4 @@
-import { EditorTabBar, EditorTabContent } from '@easyspace/ui';
+import { EditorTabBar, EditorTabContent } from '@jiulimiai/ui';
 import type { ReactNode } from 'react';
 
 export interface EditorTab {

@@ -1,5 +1,5 @@
-import type { WorkspaceAPI } from '@easyspace/plugin-api';
-import type { SearchOptions } from '@easyspace/plugin-runtime';
+import type { WorkspaceAPI } from '@jiulimiai/plugin-api';
+import type { SearchOptions } from '@jiulimiai/plugin-runtime';
 import {
   createIndexedDbWorkspace,
   createMemoryWorkspace,
@@ -7,7 +7,7 @@ import {
   listWorkspaceRoots,
   setActiveWorkspaceRoot,
   warmIndexedDbWorkspace,
-} from '@easyspace/plugin-runtime';
+} from '@jiulimiai/plugin-runtime';
 
 import { SAMPLE_WORKSPACE } from './workspace.js';
 
@@ -15,7 +15,8 @@ export { getActiveWorkspaceRoot, listWorkspaceRoots };
 
 export function useMemoryWorkspace(): boolean {
   if (typeof window === 'undefined') return false;
-  if (import.meta.env.VITE_MOLECULE_MEMORY_WORKSPACE === '1') return true;
+  const env = (import.meta as ImportMeta & { env?: Record<string, unknown> }).env;
+  if (env?.VITE_MOLECULE_MEMORY_WORKSPACE === '1') return true;
   return new URLSearchParams(window.location.search).has('memory');
 }
 

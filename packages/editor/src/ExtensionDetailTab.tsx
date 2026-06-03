@@ -4,10 +4,10 @@ import {
   resolveActivityIcon,
   ScrollArea,
   Textarea,
-} from '@easyspace/ui';
+} from '@jiulimiai/ui';
 import { useCallback, useState } from 'react';
 
-import type { ExtensionDetailData } from '@easyspace/plugin-api';
+import type { ExtensionDetailData } from '@jiulimiai/plugin-api';
 
 const DISABLED_EXTENSIONS_KEY = 'molecule:disabled-extensions';
 const EXTENSION_CONFIG_KEY_PREFIX = 'molecule:extension-config:';

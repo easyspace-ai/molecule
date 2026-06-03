@@ -1,4 +1,4 @@
-import type { ThemeContribution } from '@easyspace/plugin-api';
+import type { ThemeContribution } from '@jiulimiai/plugin-api';
 
 import {
   getMonacoTheme,

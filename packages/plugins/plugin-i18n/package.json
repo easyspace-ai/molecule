@@ -1,7 +1,6 @@
 {
-  "name": "@easyspace/plugin-i18n",
+  "name": "@jiulimiai/plugin-i18n",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -10,10 +9,29 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@easyspace/plugin-api": "workspace:*"
+    "@jiulimiai/plugin-api": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/plugins/plugin-i18n"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   }
 }

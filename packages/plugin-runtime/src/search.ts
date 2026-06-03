@@ -1,4 +1,4 @@
-import type { SearchMatch } from '@easyspace/plugin-api';
+import type { SearchMatch } from '@jiulimiai/plugin-api';
 
 export interface SearchOptions {
   caseSensitive?: boolean;

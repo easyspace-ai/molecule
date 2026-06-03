@@ -4,7 +4,7 @@ import {
   type ConfigurationPropertySchema,
   type ExtensionManifestFields,
   type PluginModule,
-} from '@easyspace/plugin-api';
+} from '@jiulimiai/plugin-api';
 import { z } from 'zod';
 
 export interface ExtensionManifest extends ExtensionManifestFields {

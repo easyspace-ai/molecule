@@ -13,7 +13,7 @@ import {
   UIAPI,
   WorkbenchAPI,
   WorkspaceAPI,
-} from '@easyspace/plugin-api';
+} from '@jiulimiai/plugin-api';
 import type { ReactNode } from 'react';
 
 import type { ContributionRegistry } from './registry.js';

@@ -1,4 +1,4 @@
-@import "@easyspace/ui/styles/tokens.css";
+@import "@jiulimiai/ui/styles/tokens.css";
 
 @source "../../../packages/ui/src/**/*.{ts,tsx}";
 @source "../../../packages/workbench/src/**/*.{ts,tsx}";

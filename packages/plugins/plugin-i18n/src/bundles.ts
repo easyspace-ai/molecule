@@ -1,4 +1,4 @@
-import type { MessageBundle } from '@easyspace/plugin-api';
+import type { MessageBundle } from '@jiulimiai/plugin-api';
 
 export const EN_BUNDLE: MessageBundle = {
   'menu.file': 'File',

@@ -1,0 +1,28 @@
+{
+  "name": "molecule-ide-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Standalone demo — embed @jiulimiai/molecule-ide from npm",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@jiulimiai/molecule-ide": "^0.1.0",
+    "@jiulimiai/ui": "^0.1.0",
+    "monaco-editor": "^0.52.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  }
+}

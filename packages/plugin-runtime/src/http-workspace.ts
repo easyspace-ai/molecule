@@ -1,4 +1,4 @@
-import type { WorkspaceAPI, WorkspaceBackendClient } from '@easyspace/plugin-api';
+import type { WorkspaceAPI, WorkspaceBackendClient } from '@jiulimiai/plugin-api';
 
 import { normalizePath } from './path-utils.js';
 import { buildWorkspaceTree } from './workspace-tree.js';

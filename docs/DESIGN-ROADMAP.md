@@ -1,6 +1,6 @@
 # Molecule Next — Design Roadmap
 
-> **中文摘要**：Molecule Next 是插件优先的 Web IDE 框架（`@easyspace/*`），Reference IDE 为展示应用。本路线图对标 Pyxis-CodeCanvas 与 legacy Molecule，分 Phase 0–4 推进：Phase 1 已完成百分比布局、快捷键注册、设置持久化；Phase 2 计划 IndexedDB 工作区、配置服务、编辑器分屏；Phase 3–4 为 Git、终端、扩展市场与 i18n。
+> **中文摘要**：Molecule Next 是插件优先的 Web IDE 框架（`@jiulimiai/*`），Reference IDE 为展示应用。本路线图对标 Pyxis-CodeCanvas 与 legacy Molecule，分 Phase 0–4 推进：Phase 1 已完成百分比布局、快捷键注册、设置持久化；Phase 2 计划 IndexedDB 工作区、配置服务、编辑器分屏；Phase 3–4 为 Git、终端、扩展市场与 i18n。
 
 ---
 
@@ -19,7 +19,7 @@ Molecule Next optimizes for **embeddability** and **AI-era extensibility**. Pyxi
 
 ### Design principles
 
-1. Plugins never import kernel internals — only `@easyspace/plugin-api` facades.
+1. Plugins never import kernel internals — only `@jiulimiai/plugin-api` facades.
 2. Static contributions (views, commands, themes) register at load; `activate()` is deferred.
 3. Host apps own persistence strategy; framework exposes contracts.
 4. Minimal diffs per phase; acceptance criteria gate merges.
@@ -30,17 +30,17 @@ Molecule Next optimizes for **embeddability** and **AI-era extensibility**. Pyxi
 
 | Capability | Legacy Molecule `src/` | Molecule Next | Pyxis-CodeCanvas |
 |------------|------------------------|---------------|------------------|
-| Workbench layout | Built-in slots | `@easyspace/workbench` + Zustand | Custom flex + % panes |
+| Workbench layout | Built-in slots | `@jiulimiai/workbench` + Zustand | Custom flex + % panes |
 | Plugin system | `IExtension` | `PluginModule` + Zod manifest | esbuild npm extensions |
-| Editor | Monaco override stack | `@easyspace/editor` adapter | Monaco + diff tabs |
+| Editor | Monaco override stack | `@jiulimiai/editor` adapter | Monaco + diff tabs |
 | Workspace | Host-provided | **IndexedDB** (default) + memory fallback | IndexedDB FS |
-| Git / SCM | N/A | `@easyspace/git` + plugin-scm | isomorphic-git |
+| Git / SCM | N/A | `@jiulimiai/git` + plugin-scm | isomorphic-git |
 | Terminal | N/A | Built-in shell + xterm (**frozen**, no PTY) | Node emulator + xterm |
-| UI / Theme | Legacy SCSS | `@easyspace/ui` + Craft OKLCH + 15 presets | Custom |
+| UI / Theme | Legacy SCSS | `@jiulimiai/ui` + Craft OKLCH + 15 presets | Custom |
 | Search | Basic | Sync in-memory | Web Worker + globs |
 | Settings | Molecule settings service | localStorage + session layout | `.pyxis/settings.json` |
 | Keybindings | Monaco KeybindingService | Registry + hook (Phase 1) | Full chord + persistence |
-| AI | N/A | `@easyspace/ai-host` | AI diff adoption |
+| AI | N/A | `@jiulimiai/ai-host` | AI diff adoption |
 | i18n | Locales extension | Phase 4 | 18 languages |
 | E2E | Limited | Playwright Reference IDE | Vitest + Playwright |
 
@@ -218,8 +218,8 @@ graph LR
 
 | Deliverable | Owner | Acceptance |
 |-------------|-------|------------|
-| `@easyspace/git` | packages/git | isomorphic-git via WorkspaceAPI FS; unit tests |
-| `@easyspace/terminal-host` | packages/terminal-host | Built-in shell commands; TerminalAPI adapter |
+| `@jiulimiai/git` | packages/git | isomorphic-git via WorkspaceAPI FS; unit tests |
+| `@jiulimiai/terminal-host` | packages/terminal-host | Built-in shell commands; TerminalAPI adapter |
 | `plugin-scm` upgrade | plugin-scm | Real stage/commit/log; migrate `git.json` |
 | AI OpenAI-compatible provider | ai-host | Settings key; mock default; multi-file edits |
 | Extension registry | plugin-runtime + build script | Zod manifest; `sample-panel` extension |
@@ -232,7 +232,7 @@ graph LR
 
 | Deliverable | Owner | Acceptance |
 |-------------|-------|------------|
-| `@easyspace/ui` | packages/ui | Craft tokens, shadcn, icons, IDE components |
+| `@jiulimiai/ui` | packages/ui | Craft tokens, shadcn, icons, IDE components |
 | CSS migration | ui + plugins | No orphan `--mo-*` CSS |
 | ADR 007 | docs | Embed-first documented |
 | Monaco lazy load | editor | Dynamic import |

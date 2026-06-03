@@ -10,7 +10,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'pnpm --filter @easyspace/reference-ide exec vite preview --host 127.0.0.1 --port 5199',
+    command: 'pnpm --filter @jiulimiai/reference-ide exec vite preview --host 127.0.0.1 --port 5199',
     url: 'http://127.0.0.1:5199',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

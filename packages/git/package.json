@@ -1,5 +1,5 @@
 {
-  "name": "@easyspace/git",
+  "name": "@jiulimiai/git",
   "version": "0.1.0",
   "description": "Isomorphic Git service bridged to Molecule WorkspaceAPI",
   "type": "module",
@@ -22,7 +22,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@easyspace/plugin-api": "workspace:*",
+    "@jiulimiai/plugin-api": "workspace:*",
     "@isomorphic-git/lightning-fs": "^4.6.2",
     "isomorphic-git": "^1.27.1"
   },
@@ -30,5 +30,14 @@
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/git"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

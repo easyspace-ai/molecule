@@ -1,5 +1,5 @@
 {
-  "name": "@easyspace/editor",
+  "name": "@jiulimiai/editor",
   "version": "0.1.0",
   "description": "Molecule Next Monaco editor adapter",
   "type": "module",
@@ -11,17 +11,20 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom --external monaco-editor --external @easyspace/ui --injectStyle",
-    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external monaco-editor --external @easyspace/ui",
+    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom --external monaco-editor --external @jiulimiai/ui --injectStyle",
+    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external monaco-editor --external @jiulimiai/ui",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@easyspace/plugin-api": "workspace:*",
-    "@easyspace/ui": "workspace:*",
-    "@easyspace/workbench": "workspace:*",
+    "@jiulimiai/plugin-api": "workspace:*",
+    "@jiulimiai/ui": "workspace:*",
+    "@jiulimiai/workbench": "workspace:*",
     "monaco-editor": "^0.52.2",
     "zustand": "^5.0.2"
   },
@@ -36,5 +39,14 @@
     "react-dom": "^18.3.1",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/editor"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

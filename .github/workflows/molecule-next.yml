@@ -27,12 +27,12 @@ jobs:
 
       - run: pnpm build
 
-      - run: pnpm build --filter=@easyspace/reference-ide
+      - run: pnpm build --filter=@jiulimiai/reference-ide
       - run: node scripts/check-bundle.mjs
 
       - run: pnpm test
 
       - run: pnpm exec playwright install chromium --with-deps
       - run: pnpm build:extensions
-      - run: pnpm build --filter=@easyspace/reference-ide
+      - run: pnpm build --filter=@jiulimiai/reference-ide
       - run: pnpm e2e

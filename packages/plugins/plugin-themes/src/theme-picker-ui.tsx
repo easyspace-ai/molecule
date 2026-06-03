@@ -5,7 +5,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@easyspace/ui';
+} from '@jiulimiai/ui';
 import { useEffect, useState } from 'react';
 
 import { THEME_PRESETS } from './theme-presets.js';

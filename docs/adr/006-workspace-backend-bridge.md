@@ -8,7 +8,7 @@ Proposed — Explorer CRUD phase
 
 Reference IDE persists workspace files in **IndexedDB** via `createIndexedDbWorkspace`. Explorer CRUD (`createFile`, `createDirectory`, `deletePath`, `renamePath`) must work in the browser today while keeping a path for a future **REST/Tauri** backend without rewriting plugins.
 
-Plugins (e.g. `@easyspace/plugin-explorer`) call **`WorkspaceAPI` only** — never IndexedDB or fetch directly.
+Plugins (e.g. `@jiulimiai/plugin-explorer`) call **`WorkspaceAPI` only** — never IndexedDB or fetch directly.
 
 ## Decision
 
@@ -56,7 +56,7 @@ Phase 7+ implements `createHttpWorkspaceClient` and optionally wraps it in `crea
 
 ## Consequences
 
-- Git FS bridge (`@easyspace/git`) can later use `deletePath` / `renamePath` instead of write-empty hacks.
+- Git FS bridge (`@jiulimiai/git`) can later use `deletePath` / `renamePath` instead of write-empty hacks.
 - Backend team can implement REST to match `WorkspaceBackendClient` without plugin changes.
 - Empty folders require explicit directory tracking (not inferrable from files alone).
 

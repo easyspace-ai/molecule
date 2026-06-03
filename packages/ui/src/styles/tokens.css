@@ -1,8 +1,8 @@
 /**
- * @easyspace/ui - Craft OKLCH design tokens (Apache-2.0, adapted from @craft-agent/ui)
+ * @jiulimiai/ui - Craft OKLCH design tokens (Apache-2.0, adapted from @craft-agent/ui)
  *
  * Import in host app CSS:
- *   @import "@easyspace/ui/styles/tokens.css";
+ *   @import "@jiulimiai/ui/styles/tokens.css";
  * Then add source directives in the app CSS (see reference-ide/src/index.css).
  *
  * 6-Color System:

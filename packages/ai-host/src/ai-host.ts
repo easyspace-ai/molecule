@@ -4,7 +4,7 @@ import type {
   AIStreamChunk,
   AIToolHandler,
   Disposable,
-} from '@easyspace/plugin-api';
+} from '@jiulimiai/plugin-api';
 
 export interface ChatSession {
   id: string;

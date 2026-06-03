@@ -1,8 +1,8 @@
 import './index.css';
-import './monaco-setup.js';
+import '@jiulimiai/molecule-ide/monaco-setup';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { MoleculeIDE } from '@easyspace/reference-ide/embed';
+import { MoleculeIDE } from '@jiulimiai/molecule-ide';
 
 const seedFiles = {
   'README.md': `# Molecule Embed Demo

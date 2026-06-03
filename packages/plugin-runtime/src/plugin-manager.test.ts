@@ -1,4 +1,4 @@
-import type { PluginModule } from '@easyspace/plugin-api';
+import type { PluginModule } from '@jiulimiai/plugin-api';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createEditorHost, createMemoryWorkspace } from './host-context.js';

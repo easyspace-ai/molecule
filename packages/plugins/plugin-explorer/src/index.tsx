@@ -1,4 +1,4 @@
-import type { PluginModule, WorkspaceFile } from '@easyspace/plugin-api';
+import type { PluginModule, WorkspaceFile } from '@jiulimiai/plugin-api';
 import {
   Button,
   ContextMenu,
@@ -14,7 +14,7 @@ import {
   Icon_FolderPlus,
   Icon_RefreshCw,
   ScrollArea,
-} from '@easyspace/ui';
+} from '@jiulimiai/ui';
 import { useCallback, useEffect, useState } from 'react';
 
 type ExplorerWorkspace = {

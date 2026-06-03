@@ -1,12 +1,12 @@
-# @easyspace/git
+# @jiulimiai/git
 
-Real Git operations for browser workspaces via [isomorphic-git](https://isomorphic-git.com/), bridged to `@easyspace/plugin-api` `WorkspaceAPI`.
+Real Git operations for browser workspaces via [isomorphic-git](https://isomorphic-git.com/), bridged to `@jiulimiai/plugin-api` `WorkspaceAPI`.
 
 ## Usage (third-party host)
 
 ```typescript
-import { createGitService } from '@easyspace/git';
-import { createMemoryWorkspace } from '@easyspace/plugin-runtime';
+import { createGitService } from '@jiulimiai/git';
+import { createMemoryWorkspace } from '@jiulimiai/plugin-runtime';
 
 const workspace = createMemoryWorkspace({ 'README.md': '# Hi' });
 const git = createGitService({ workspace });
@@ -25,4 +25,4 @@ const status = await git.status();
 
 ## ScmAPI integration
 
-Use `@easyspace/plugin-runtime` `createScmService(workspace)` which wraps this package for the plugin facade.
+Use `@jiulimiai/plugin-runtime` `createScmService(workspace)` which wraps this package for the plugin facade.

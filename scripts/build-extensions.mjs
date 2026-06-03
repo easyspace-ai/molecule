@@ -57,7 +57,7 @@ for (const id of extensions) {
     outfile: join(outDir, 'index.js'),
     jsx: 'automatic',
     jsxImportSource: 'react',
-    external: ['@easyspace/plugin-api'],
+    external: ['@jiulimiai/plugin-api'],
   });
 
   cpSync(join(srcDir, 'manifest.json'), join(outDir, 'manifest.json'));

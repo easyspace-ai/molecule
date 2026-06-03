@@ -10,8 +10,8 @@ import {
   TooltipTrigger,
   Icon_Settings,
   Icon_User,
-} from '@easyspace/ui';
-import { defaultL10n } from '@easyspace/plugin-api';
+} from '@jiulimiai/ui';
+import { defaultL10n } from '@jiulimiai/plugin-api';
 import { useEffect, useMemo, useState } from 'react';
 
 export type SettingsMenuAction = 'commandPalette' | 'settings' | 'colorTheme';

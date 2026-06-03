@@ -1,5 +1,5 @@
 {
-  "name": "@easyspace/plugin-api",
+  "name": "@jiulimiai/plugin-api",
   "version": "0.1.0",
   "description": "Molecule Next plugin manifest types and host facade contracts",
   "type": "module",
@@ -11,7 +11,9 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --dts --watch",
@@ -25,10 +27,21 @@
     "react": "^18.2.0"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true }
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/plugin-api"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

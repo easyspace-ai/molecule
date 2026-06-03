@@ -1,19 +1,20 @@
 # Molecule Next — Embed Guide
 
-Embed the Molecule IDE shell in your React app in under 30 minutes.
+Embed the Molecule IDE shell in your React app.
 
 ## Quick start
 
 ```bash
-pnpm add @easyspace/reference-ide @easyspace/ui react react-dom
+pnpm add @jiulimiai/molecule-ide @jiulimiai/ui react react-dom monaco-editor
 ```
 
 ```tsx
 // main.tsx
-import '@easyspace/ui/styles/tokens.css';
+import '@jiulimiai/ui/styles/tokens.css';
+import '@jiulimiai/molecule-ide/monaco-setup';
 import './index.css';
 import { createRoot } from 'react-dom/client';
-import { MoleculeIDE } from '@easyspace/reference-ide/embed';
+import { MoleculeIDE } from '@jiulimiai/molecule-ide';
 
 createRoot(document.getElementById('root')!).render(
   <MoleculeIDE
@@ -27,12 +28,13 @@ createRoot(document.getElementById('root')!).render(
 ```
 
 ```css
-/* index.css — required Tailwind scan */
-@import "@easyspace/ui/styles/tokens.css";
-@source "../../../packages/ui/src/**/*.{ts,tsx}";
-@source "../../../packages/workbench/src/**/*.{ts,tsx}";
-@source "../../../packages/editor/src/**/*.{ts,tsx}";
-@source "../../../packages/plugins/**/src/**/*.{ts,tsx}";
+/* index.css — required Tailwind scan (paths relative to your app) */
+@import "@jiulimiai/ui/styles/tokens.css";
+@source "../node_modules/@jiulimiai/ui/src/**/*.{ts,tsx}";
+@source "../node_modules/@jiulimiai/workbench/src/**/*.{ts,tsx}";
+@source "../node_modules/@jiulimiai/editor/src/**/*.{ts,tsx}";
+@source "../node_modules/@jiulimiai/molecule-ide/src/**/*.{ts,tsx}";
+@source "../node_modules/@jiulimiai/plugin-*/src/**/*.{ts,tsx}";
 ```
 
 Configure Vite with `@tailwindcss/vite` (see `apps/embed-demo/vite.config.ts`).
@@ -54,10 +56,10 @@ Configure Vite with `@tailwindcss/vite` (see `apps/embed-demo/vite.config.ts`).
 
 ## Remote workspace (HTTP)
 
-Use `@easyspace/plugin-runtime` HTTP adapter with your backend:
+Use `@jiulimiai/plugin-runtime` HTTP adapter with your backend:
 
 ```typescript
-import { createHttpWorkspaceClient, createHttpWorkspace } from '@easyspace/plugin-runtime';
+import { createHttpWorkspaceClient, createHttpWorkspace } from '@jiulimiai/plugin-runtime';
 
 const client = createHttpWorkspaceClient({ baseUrl: 'https://api.example.com/ws/project-1' });
 const workspace = createHttpWorkspace({ client, root: 'project-1' });
@@ -69,8 +71,28 @@ REST contract: see `packages/plugin-api/src/workspace-backend.ts`.
 
 ## Monaco workers
 
-Copy `apps/reference-ide/src/monaco-setup.ts` into your host app and import it before `MoleculeIDE`.
+Import `@jiulimiai/molecule-ide/monaco-setup` **before** rendering `<MoleculeIDE />` (Vite host required for `?worker` imports).
+
+## Publishing / local verification
+
+From the monorepo root:
+
+```bash
+pnpm verify:publish       # pack + validate 22 @jiulimiai/* tarballs
+pnpm verify:publish:full  # also smoke-build an isolated npm consumer (slow)
+```
+
+To publish to npm (requires `@jiulimiai` org access):
+
+```bash
+pnpm build --filter=@jiulimiai/molecule-ide...
+pnpm -r publish --filter "@jiulimiai/*" --access public --no-git-checks
+```
 
 ## Example app
 
 See [`apps/embed-demo`](../apps/embed-demo) for a minimal Vite host.
+
+## Monorepo development
+
+When developing inside this repository, use `workspace:*` dependencies instead of npm versions.

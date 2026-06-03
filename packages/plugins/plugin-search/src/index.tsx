@@ -1,5 +1,5 @@
-import type { ConfigurationAPI, PluginModule, SearchMatch } from '@easyspace/plugin-api';
-import { Button, Input, ScrollArea, Icon_Search } from '@easyspace/ui';
+import type { ConfigurationAPI, PluginModule, SearchMatch } from '@jiulimiai/plugin-api';
+import { Button, Input, ScrollArea, Icon_Search } from '@jiulimiai/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function SearchViewHost({

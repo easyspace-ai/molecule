@@ -1,4 +1,4 @@
-import type { StatusBarItem } from '@easyspace/plugin-api';
+import type { StatusBarItem } from '@jiulimiai/plugin-api';
 import type { ReactNode } from 'react';
 import { create } from 'zustand';
 

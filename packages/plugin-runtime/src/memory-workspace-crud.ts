@@ -1,4 +1,4 @@
-import type { WorkspaceAPI } from '@easyspace/plugin-api';
+import type { WorkspaceAPI } from '@jiulimiai/plugin-api';
 
 import {
   assertValidRelativePath,

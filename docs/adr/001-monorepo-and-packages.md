@@ -11,7 +11,7 @@ Molecule Next replaces the monolithic `@dtinsight/molecule` service layer with a
 ## Decision
 
 - Use **pnpm workspaces** + **Turborepo** for build orchestration.
-- Publish scope **`@easyspace/*`** for all public packages.
+- Publish scope **`@jiulimiai/*`** for all public packages.
 - Split: `kernel`, `workbench`, `editor`, `plugin-api`, `plugin-runtime`, `ai-host`, and official plugins under `packages/plugins/`.
 - Legacy code under repository root `src/` remains for reference until migrated (see `docs/MIGRATION-LEGACY.md`).
 

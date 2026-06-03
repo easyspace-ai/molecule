@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { cn } from '@easyspace/ui';
+import { cn } from '@jiulimiai/ui';
 
 function InlineCode({ children }: { children: string }) {
   return (

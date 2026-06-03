@@ -1,4 +1,4 @@
-import type { EditorDocument, WorkspaceAPI } from '@easyspace/plugin-api';
+import type { EditorDocument, WorkspaceAPI } from '@jiulimiai/plugin-api';
 
 import type { EditorPane, OpenTab, SplitDirection } from './editor-store.js';
 

@@ -1,18 +1,17 @@
 {
-  "name": "@easyspace/plugin-ai",
+  "name": "@jiulimiai/plugin-ai",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.tsx --format esm --dts --clean --external react --external @easyspace/ui",
+    "build": "tsup src/index.tsx --format esm --dts --clean --external react --external @jiulimiai/ui",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@easyspace/ai-host": "workspace:*",
-    "@easyspace/plugin-api": "workspace:*",
-    "@easyspace/ui": "workspace:*"
+    "@jiulimiai/ai-host": "workspace:*",
+    "@jiulimiai/plugin-api": "workspace:*",
+    "@jiulimiai/ui": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.2.0"
@@ -22,5 +21,24 @@
     "react": "^18.3.1",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/plugins/plugin-ai"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   }
 }

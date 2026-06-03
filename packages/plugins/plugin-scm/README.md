@@ -1,6 +1,6 @@
-# @easyspace/plugin-scm
+# @jiulimiai/plugin-scm
 
-Source control UI for Molecule Next, backed by **`@easyspace/git`** (isomorphic-git).
+Source control UI for Molecule Next, backed by **`@jiulimiai/git`** (isomorphic-git).
 
 ## Storage
 
@@ -16,8 +16,8 @@ Git objects live under `.git/` in the workspace (IndexedDB-backed in Reference I
 
 ## Dependencies
 
-- `@easyspace/git` — GitService
-- `@easyspace/plugin-runtime` — `createScmService(workspace)` adapter to `ScmAPI`
+- `@jiulimiai/git` — GitService
+- `@jiulimiai/plugin-runtime` — `createScmService(workspace)` adapter to `ScmAPI`
 
 ## Limitations
 

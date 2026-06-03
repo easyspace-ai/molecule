@@ -1,5 +1,5 @@
 {
-  "name": "@easyspace/plugin-runtime",
+  "name": "@jiulimiai/plugin-runtime",
   "version": "0.1.0",
   "description": "Molecule Next plugin loader and contribution registry",
   "type": "module",
@@ -11,7 +11,9 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --dts --watch",
@@ -20,14 +22,23 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@easyspace/git": "workspace:*",
-    "@easyspace/plugin-api": "workspace:*",
-    "@easyspace/terminal-host": "workspace:*",
+    "@jiulimiai/git": "workspace:*",
+    "@jiulimiai/plugin-api": "workspace:*",
+    "@jiulimiai/terminal-host": "workspace:*",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/plugin-runtime"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -19,11 +19,16 @@ export interface MoleculeSettings {
     overrides: Record<string, string>;
   };
   ai: {
-    provider: 'mock' | 'openai-compatible';
+    provider: 'mock' | 'openai-compatible' | 'pi-remote';
     openaiCompatible: {
       baseURL: string;
       apiKey: string;
       model: string;
+    };
+    piRemote: {
+      baseUrl: string;
+      model?: string;
+      thinkingLevel?: string;
     };
   };
 }
@@ -46,11 +51,14 @@ export const DEFAULT_MOLECULE_SETTINGS: MoleculeSettings = {
     overrides: {},
   },
   ai: {
-    provider: 'mock',
+    provider: 'pi-remote',
     openaiCompatible: {
       baseURL: 'https://api.openai.com/v1',
       apiKey: '',
       model: 'gpt-4o-mini',
+    },
+    piRemote: {
+      baseUrl: 'http://127.0.0.1:5198',
     },
   },
 };

@@ -1,4 +1,4 @@
-import type { WorkspaceFile } from '@easyspace/plugin-api';
+import type { WorkspaceFile } from '@jiulimiai/plugin-api';
 
 import { normalizePath } from './path-utils.js';
 

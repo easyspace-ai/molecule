@@ -1,6 +1,6 @@
-import type { PluginModule } from '@easyspace/plugin-api';
-import { ScrollArea } from '@easyspace/ui';
-import { useWorkbenchStore } from '@easyspace/workbench';
+import type { PluginModule } from '@jiulimiai/plugin-api';
+import { ScrollArea } from '@jiulimiai/ui';
+import { useWorkbenchStore } from '@jiulimiai/workbench';
 
 function OutputView() {
   const logs = useWorkbenchStore((s) => s.panelLogs.output ?? []);

@@ -1,4 +1,4 @@
-import type { PluginModule } from '@easyspace/plugin-api';
+import type { PluginModule } from '@jiulimiai/plugin-api';
 import { useState } from 'react';
 
 function TodoPanel() {

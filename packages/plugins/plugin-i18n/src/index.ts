@@ -1,5 +1,5 @@
-import type { ConfigurationAPI, PluginModule } from '@easyspace/plugin-api';
-import { setMessageBundle } from '@easyspace/plugin-api';
+import type { ConfigurationAPI, PluginModule } from '@jiulimiai/plugin-api';
+import { setMessageBundle } from '@jiulimiai/plugin-api';
 
 import { BUNDLED_LOCALES, bundleForLocale, mergeLocalizationContributions } from './bundles.js';
 

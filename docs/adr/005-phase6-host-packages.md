@@ -10,20 +10,20 @@ Phase 5 used browser MVP stubs: `.molecule/git.json` for SCM and inline command 
 
 ## Decision
 
-Introduce dedicated `@easyspace/*` host packages and keep plugins thin:
+Introduce dedicated `@jiulimiai/*` host packages and keep plugins thin:
 
 | Package | Responsibility | Plugin |
 |---------|----------------|--------|
-| `@easyspace/git` | `WorkspaceAPI` ↔ isomorphic-git FS; `GitService` | `plugin-scm` UI only |
-| `@easyspace/terminal-host` | Sessions, `executeLine`, built-in commands | `plugin-terminal` xterm UI |
-| `@easyspace/ai-host` | Providers (mock, OpenAI-compatible), edit stream parser | `plugin-ai` diff UI |
-| `@easyspace/plugin-runtime` | `extension-loader`, `createScmService`, `createTerminalService` adapters | — |
-| `@easyspace/plugin-api` | `ScmAPI`, `TerminalAPI`, manifest Zod (`terminalCommands`, `localizations`) | — |
+| `@jiulimiai/git` | `WorkspaceAPI` ↔ isomorphic-git FS; `GitService` | `plugin-scm` UI only |
+| `@jiulimiai/terminal-host` | Sessions, `executeLine`, built-in commands | `plugin-terminal` xterm UI |
+| `@jiulimiai/ai-host` | Providers (mock, OpenAI-compatible), edit stream parser | `plugin-ai` diff UI |
+| `@jiulimiai/plugin-runtime` | `extension-loader`, `createScmService`, `createTerminalService` adapters | — |
+| `@jiulimiai/plugin-api` | `ScmAPI`, `TerminalAPI`, manifest Zod (`terminalCommands`, `localizations`) | — |
 
 ### Boundaries
 
-1. **No React** in `@easyspace/git` or `@easyspace/terminal-host`.
-2. Plugins import only `@easyspace/plugin-api` (+ UI libs for their views).
+1. **No React** in `@jiulimiai/git` or `@jiulimiai/terminal-host`.
+2. Plugins import only `@jiulimiai/plugin-api` (+ UI libs for their views).
 3. Reference IDE wires services in `MoleculeIDE.tsx`; it does not implement Git/terminal logic.
 4. Dynamic extensions live under `apps/reference-ide/extensions-src/*`, built to `public/extensions/` via `pnpm build:extensions`.
 5. **Tauri desktop shell** remains out of scope.
@@ -35,7 +35,7 @@ Introduce dedicated `@easyspace/*` host packages and keep plugins thin:
 
 ## Consequences
 
-- Third parties can depend on `@easyspace/git` / `@easyspace/terminal-host` without Reference IDE.
+- Third parties can depend on `@jiulimiai/git` / `@jiulimiai/terminal-host` without Reference IDE.
 - `plugin-runtime` gains dependencies on git + terminal-host (adapter layer only).
 - CI runs `build:extensions` before Reference IDE build.
 

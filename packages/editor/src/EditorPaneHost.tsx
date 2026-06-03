@@ -1,5 +1,5 @@
-import { EditorTabs } from '@easyspace/workbench';
-import { cn } from '@easyspace/ui';
+import { EditorTabs } from '@jiulimiai/workbench';
+import { cn } from '@jiulimiai/ui';
 import { ExtensionDetailTab } from './ExtensionDetailTab.js';
 import { useEditorStore } from './editor-store.js';
 import { LazyMonacoEditor } from './LazyMonacoEditor.js';

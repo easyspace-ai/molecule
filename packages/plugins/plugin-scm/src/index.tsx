@@ -1,5 +1,5 @@
-import type { PluginModule, ScmAPI, ScmFileChange } from '@easyspace/plugin-api';
-import { Button, Input, ScrollArea } from '@easyspace/ui';
+import type { PluginModule, ScmAPI, ScmFileChange } from '@jiulimiai/plugin-api';
+import { Button, Input, ScrollArea } from '@jiulimiai/ui';
 import { useCallback, useEffect, useState } from 'react';
 
 const STATUS_LABEL: Record<ScmFileChange['status'], string> = {
@@ -84,7 +84,7 @@ function SourceControlView({ scm }: { scm: ScmAPI }) {
         ) : null}
 
         <p className="text-[10px] text-muted-foreground">
-          Powered by <code>@easyspace/git</code> (isomorphic-git).
+          Powered by <code>@jiulimiai/git</code> (isomorphic-git).
         </p>
       </div>
     </ScrollArea>

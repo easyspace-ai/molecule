@@ -1,4 +1,4 @@
-import type { AIEditProposal, AIProvider, AIStreamChunk } from '@easyspace/plugin-api';
+import type { AIEditProposal, AIProvider, AIStreamChunk } from '@jiulimiai/plugin-api';
 
 /** Parse structured edit JSON from streamed assistant text. */
 export function parseEditBatch(text: string): AIEditProposal[] | null {

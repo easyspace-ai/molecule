@@ -1,4 +1,4 @@
-import type { EditorDocument, ExtensionDetailData } from '@easyspace/plugin-api';
+import type { EditorDocument, ExtensionDetailData } from '@jiulimiai/plugin-api';
 import { create } from 'zustand';
 
 import { scheduleEditorAutoSave } from './auto-save-scheduler.js';

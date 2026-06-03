@@ -1,4 +1,4 @@
-import type { KeybindingContribution } from '@easyspace/plugin-api';
+import type { KeybindingContribution } from '@jiulimiai/plugin-api';
 
 export interface RegisteredKeybinding extends KeybindingContribution {
   /** Lower number = higher priority when multiple bindings match. */

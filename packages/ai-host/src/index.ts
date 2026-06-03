@@ -12,3 +12,9 @@ export {
   chunksFromEditBatch,
   type OpenAICompatibleConfig,
 } from './openai-provider.js';
+export {
+  createPiRemoteProvider,
+  PiRemoteProvider,
+  type PiRemoteConfig,
+  type PiModelInfo,
+} from './pi-remote-provider.js';

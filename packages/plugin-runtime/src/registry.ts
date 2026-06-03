@@ -3,7 +3,7 @@ import type {
   ThemeContribution,
   ViewContribution,
   ViewLocation,
-} from '@easyspace/plugin-api';
+} from '@jiulimiai/plugin-api';
 
 export interface ContributionRegistry {
   commands: Map<string, CommandContribution & { pluginId: string }>;

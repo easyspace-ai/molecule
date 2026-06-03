@@ -1,7 +1,7 @@
-import type { ConfigurationAPI, PluginModule } from '@easyspace/plugin-api';
-import { defaultL10n } from '@easyspace/plugin-api';
-import { DEFAULT_KEYBINDINGS, normalizeKeyCombo } from '@easyspace/plugin-runtime';
-import { Button, Input, ScrollArea, Textarea, cn } from '@easyspace/ui';
+import type { ConfigurationAPI, PluginModule } from '@jiulimiai/plugin-api';
+import { defaultL10n } from '@jiulimiai/plugin-api';
+import { DEFAULT_KEYBINDINGS, normalizeKeyCombo } from '@jiulimiai/plugin-runtime';
+import { Button, Input, ScrollArea, Textarea, cn } from '@jiulimiai/ui';
 import { useEffect, useState } from 'react';
 
 import { AppearanceSettingsSection } from './appearance-settings.js';
@@ -49,7 +49,16 @@ function SettingsView({
   );
   const [locale, setLocale] = useState(configuration.get<string>('locale', 'zh-CN'));
   const [aiProvider, setAiProvider] = useState(
-    configuration.get<string>('ai.provider', 'mock') as 'mock' | 'openai-compatible'
+    configuration.get<string>('ai.provider', 'mock') as 'mock' | 'openai-compatible' | 'pi-remote'
+  );
+  const [piBaseUrl, setPiBaseUrl] = useState(
+    configuration.get<string>('ai.piRemote.baseUrl', 'http://127.0.0.1:5198')
+  );
+  const [piModel, setPiModel] = useState(
+    configuration.get<string>('ai.piRemote.model', '')
+  );
+  const [piThinkingLevel, setPiThinkingLevel] = useState(
+    configuration.get<string>('ai.piRemote.thinkingLevel', 'off')
   );
   const [aiApiKey, setAiApiKey] = useState(configuration.get<string>('ai.openaiCompatible.apiKey', ''));
   const [aiBaseUrl, setAiBaseUrl] = useState(
@@ -76,6 +85,9 @@ function SettingsView({
       setAiApiKey(settings.ai.openaiCompatible.apiKey);
       setAiBaseUrl(settings.ai.openaiCompatible.baseURL);
       setAiModel(settings.ai.openaiCompatible.model);
+      setPiBaseUrl(settings.ai.piRemote.baseUrl);
+      setPiModel(settings.ai.piRemote.model ?? '');
+      setPiThinkingLevel(settings.ai.piRemote.thinkingLevel ?? 'off');
     });
   }, [configuration]);
 
@@ -97,10 +109,13 @@ function SettingsView({
         setLocale(configuration.get<string>('locale', 'zh-CN'));
       }
       if (e.key.startsWith('ai.') || e.key === '*') {
-        setAiProvider(configuration.get<string>('ai.provider', 'mock') as 'mock' | 'openai-compatible');
+        setAiProvider(configuration.get<string>('ai.provider', 'mock') as 'mock' | 'openai-compatible' | 'pi-remote');
         setAiApiKey(configuration.get<string>('ai.openaiCompatible.apiKey', ''));
         setAiBaseUrl(configuration.get<string>('ai.openaiCompatible.baseURL', 'https://api.openai.com/v1'));
         setAiModel(configuration.get<string>('ai.openaiCompatible.model', 'gpt-4o-mini'));
+        setPiBaseUrl(configuration.get<string>('ai.piRemote.baseUrl', 'http://127.0.0.1:5198'));
+        setPiModel(configuration.get<string>('ai.piRemote.model', '') ?? '');
+        setPiThinkingLevel(configuration.get<string>('ai.piRemote.thinkingLevel', 'off') ?? 'off');
       }
     });
     return () => sub.dispose();
@@ -145,7 +160,7 @@ function SettingsView({
               value={aiProvider}
               data-testid="settings-ai-provider"
               onChange={(e) => {
-                const v = e.target.value as 'mock' | 'openai-compatible';
+                const v = e.target.value as 'mock' | 'openai-compatible' | 'pi-remote';
                 setAiProvider(v);
                 void configuration.update('ai.provider', v);
               }}
@@ -153,6 +168,7 @@ function SettingsView({
             >
               <option value="mock">Mock (offline)</option>
               <option value="openai-compatible">OpenAI Compatible</option>
+              <option value="pi-remote">Pi (Local)</option>
             </select>
           </label>
           {aiProvider === 'openai-compatible' ? (
@@ -192,6 +208,49 @@ function SettingsView({
                   onChange={(e) => setAiModel(e.target.value)}
                   onBlur={() => void configuration.update('ai.openaiCompatible.model', aiModel)}
                 />
+              </label>
+            </>
+          ) : null}
+          {aiProvider === 'pi-remote' ? (
+            <>
+              <label className="mb-2 block text-xs">
+                Server URL
+                <Input
+                  type="text"
+                  value={piBaseUrl}
+                  data-testid="settings-pi-base-url"
+                  className={fieldClass}
+                  onChange={(e) => setPiBaseUrl(e.target.value)}
+                  onBlur={() => void configuration.update('ai.piRemote.baseUrl', piBaseUrl)}
+                />
+              </label>
+              <label className="mb-2 block text-xs">
+                Model (optional)
+                <Input
+                  type="text"
+                  value={piModel}
+                  placeholder="deepseek-v4-pro"
+                  className={fieldClass}
+                  onChange={(e) => setPiModel(e.target.value)}
+                  onBlur={() => void configuration.update('ai.piRemote.model', piModel)}
+                />
+              </label>
+              <label className="block text-xs">
+                Thinking Level
+                <select
+                  value={piThinkingLevel}
+                  className={cn(fieldClass, 'h-9 rounded-md border border-input bg-background px-2')}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setPiThinkingLevel(v);
+                    void configuration.update('ai.piRemote.thinkingLevel', v);
+                  }}
+                >
+                  <option value="off">Off</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
               </label>
             </>
           ) : null}

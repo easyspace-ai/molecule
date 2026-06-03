@@ -1,5 +1,5 @@
 {
-  "name": "@easyspace/workbench",
+  "name": "@jiulimiai/workbench",
   "version": "0.1.0",
   "description": "Molecule Next workbench layout shell",
   "type": "module",
@@ -11,16 +11,19 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom --external @easyspace/ui",
-    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external @easyspace/ui",
+    "build": "tsup src/index.ts --format esm --dts --external react --external react-dom --external @jiulimiai/ui",
+    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external @jiulimiai/ui",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@easyspace/plugin-api": "workspace:*",
-    "@easyspace/ui": "workspace:*",
+    "@jiulimiai/plugin-api": "workspace:*",
+    "@jiulimiai/ui": "workspace:*",
     "zustand": "^5.0.2"
   },
   "peerDependencies": {
@@ -34,5 +37,14 @@
     "react-dom": "^18.3.1",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/workbench"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

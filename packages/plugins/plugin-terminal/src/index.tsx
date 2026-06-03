@@ -1,5 +1,5 @@
-import type { PluginModule, TerminalAPI } from '@easyspace/plugin-api';
-import type { TerminalService } from '@easyspace/plugin-runtime';
+import type { PluginModule, TerminalAPI } from '@jiulimiai/plugin-api';
+import type { TerminalService } from '@jiulimiai/plugin-runtime';
 import { FitAddon } from '@xterm/addon-fit';
 import { Terminal } from '@xterm/xterm';
 import { useEffect, useRef } from 'react';

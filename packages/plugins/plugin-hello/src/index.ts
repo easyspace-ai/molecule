@@ -1,5 +1,5 @@
-import type { PluginModule } from '@easyspace/plugin-api';
-import { defaultL10n } from '@easyspace/plugin-api';
+import type { PluginModule } from '@jiulimiai/plugin-api';
+import { defaultL10n } from '@jiulimiai/plugin-api';
 
 export const helloPlugin: PluginModule = {
   manifest: {

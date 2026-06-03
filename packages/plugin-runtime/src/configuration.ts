@@ -5,7 +5,7 @@ import {
   type Disposable,
   type MoleculeSettings,
   type WorkspaceAPI,
-} from '@easyspace/plugin-api';
+} from '@jiulimiai/plugin-api';
 
 const SETTINGS_PATH = '.molecule/settings.json';
 
@@ -49,6 +49,10 @@ function mergeSettings(base: MoleculeSettings, patch: Partial<MoleculeSettings>)
       openaiCompatible: {
         ...base.ai.openaiCompatible,
         ...patch.ai?.openaiCompatible,
+      },
+      piRemote: {
+        ...base.ai.piRemote,
+        ...patch.ai?.piRemote,
       },
     },
   };

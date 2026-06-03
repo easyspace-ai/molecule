@@ -20,7 +20,7 @@ pnpm build:extensions
 
 This uses **esbuild** to bundle each extension to ESM `index.js` and copies `manifest.json` into `public/extensions/<id>-extension/`. All subdirectories of `extensions-src/` with an entry file are built automatically. Registry metadata (`description`, `type`, `availableOnly`, etc.) is copied into `index.json`.
 
-CI and `@easyspace/reference-ide` build run `build:extensions` first.
+CI and `@jiulimiai/reference-ide` build run `build:extensions` first.
 
 ## Registry index
 
@@ -61,11 +61,11 @@ Manifests support optional v2 fields (backward compatible):
 | `editorTab` | `{ id, title }` for detail tab metadata |
 | `configuration` | Extension settings schema |
 
-Validated by `validateExtensionManifest()` in `@easyspace/plugin-runtime` (uses Zod schemas from `@easyspace/plugin-api`).
+Validated by `validateExtensionManifest()` in `@jiulimiai/plugin-runtime` (uses Zod schemas from `@jiulimiai/plugin-api`).
 
 ## Marketplace UI
 
-Built-in `@easyspace/plugin-extensions` sidebar provides:
+Built-in `@jiulimiai/plugin-extensions` sidebar provides:
 
 - **Installed** / **Available** tabs with search
 - Card actions: Enable, Disable, Install, Uninstall, Update (stub)
@@ -83,7 +83,7 @@ Reload the window after install/uninstall/enable changes.
 
 ## Catalog API (backend-ready)
 
-`ExtensionCatalogEntry` in `@easyspace/plugin-runtime` matches a future REST marketplace row:
+`ExtensionCatalogEntry` in `@jiulimiai/plugin-runtime` matches a future REST marketplace row:
 
 ```ts
 {
@@ -131,7 +131,7 @@ After build, reload Reference IDE. Install **Calculator** from the Available tab
 ## Limitations
 
 - Extensions share the host origin; React is bundled into UI extensions at build time (`build-extensions.mjs`).
-- `@easyspace/plugin-api` remains external for extension entry modules.
+- `@jiulimiai/plugin-api` remains external for extension entry modules.
 - No separate npm install at runtime yet; remote `downloadUrl` is reserved for backend marketplace.
 - For production, sign manifests and pin extension versions in `index.json`.
 

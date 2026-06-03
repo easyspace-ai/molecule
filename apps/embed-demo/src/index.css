@@ -1,10 +1,10 @@
-@import "@easyspace/ui/styles/tokens.css";
+@import "@jiulimiai/ui/styles/tokens.css";
 
-@source "../../../packages/ui/src/**/*.{ts,tsx}";
-@source "../../../packages/workbench/src/**/*.{ts,tsx}";
-@source "../../../packages/editor/src/**/*.{ts,tsx}";
-@source "../../../packages/plugins/**/src/**/*.{ts,tsx}";
-@source "../reference-ide/src/**/*.{ts,tsx}";
+@source "../../node_modules/@jiulimiai/ui/src/**/*.{ts,tsx}";
+@source "../../node_modules/@jiulimiai/workbench/src/**/*.{ts,tsx}";
+@source "../../node_modules/@jiulimiai/editor/src/**/*.{ts,tsx}";
+@source "../../node_modules/@jiulimiai/molecule-ide/src/**/*.{ts,tsx}";
+@source "../../node_modules/@jiulimiai/plugin-*/src/**/*.{ts,tsx}";
 
 html,
 body,

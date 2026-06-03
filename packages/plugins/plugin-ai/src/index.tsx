@@ -1,5 +1,5 @@
-import type { AIEditProposal, AIHostAPI, PluginModule } from '@easyspace/plugin-api';
-import { Button, Input, ScrollArea, cn, Icon_Send } from '@easyspace/ui';
+import type { AIEditProposal, AIHostAPI, PluginModule } from '@jiulimiai/plugin-api';
+import { Button, Input, ScrollArea, cn, Icon_Send } from '@jiulimiai/ui';
 import { useCallback, useRef, useState } from 'react';
 
 import { ChatMarkdown } from './chat-markdown.js';
@@ -245,6 +245,7 @@ export const aiPlugin: PluginModule = {
       aiProviders: [
         { id: 'mock', label: 'Mock Provider', protocol: 'custom' },
         { id: 'openai-compatible', label: 'OpenAI Compatible', protocol: 'openai-compatible' },
+        { id: 'pi-remote', label: 'Pi (Local)', protocol: 'custom' },
       ],
       aiTools: [
         {

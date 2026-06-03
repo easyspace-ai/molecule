@@ -1,5 +1,5 @@
-import type { PluginContext, PluginModule } from '@easyspace/plugin-api';
-import { Button, ScrollArea } from '@easyspace/ui';
+import type { PluginContext, PluginModule } from '@jiulimiai/plugin-api';
+import { Button, ScrollArea } from '@jiulimiai/ui';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 

@@ -13,7 +13,7 @@ export interface GitCommit {
 }
 
 export interface GitServiceOptions {
-  workspace: import('@easyspace/plugin-api').WorkspaceAPI;
+  workspace: import('@jiulimiai/plugin-api').WorkspaceAPI;
   /** Git root directory passed to isomorphic-git (default `/`). */
   dir?: string;
   author?: { name: string; email: string };

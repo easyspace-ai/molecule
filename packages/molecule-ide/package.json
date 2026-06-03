@@ -1,0 +1,67 @@
+{
+  "name": "@jiulimiai/molecule-ide",
+  "version": "0.1.0",
+  "description": "Molecule Next embed SDK — drop-in React IDE shell for third-party hosts",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./monaco-setup": "./src/monaco-setup.ts"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --external react --external react-dom --external @jiulimiai/ai-host --external @jiulimiai/editor --external @jiulimiai/kernel --external @jiulimiai/plugin-ai --external @jiulimiai/plugin-api --external @jiulimiai/plugin-commands --external @jiulimiai/plugin-explorer --external @jiulimiai/plugin-extensions --external @jiulimiai/plugin-hello --external @jiulimiai/plugin-i18n --external @jiulimiai/plugin-panel --external @jiulimiai/plugin-runtime --external @jiulimiai/plugin-scm --external @jiulimiai/plugin-search --external @jiulimiai/plugin-terminal --external @jiulimiai/plugin-test-pane --external @jiulimiai/plugin-themes --external @jiulimiai/workbench",
+    "dev": "tsup src/index.ts --format esm --dts --watch --external react --external react-dom --external @jiulimiai/ai-host --external @jiulimiai/editor --external @jiulimiai/kernel --external @jiulimiai/plugin-ai --external @jiulimiai/plugin-api --external @jiulimiai/plugin-commands --external @jiulimiai/plugin-explorer --external @jiulimiai/plugin-extensions --external @jiulimiai/plugin-hello --external @jiulimiai/plugin-i18n --external @jiulimiai/plugin-panel --external @jiulimiai/plugin-runtime --external @jiulimiai/plugin-scm --external @jiulimiai/plugin-search --external @jiulimiai/plugin-terminal --external @jiulimiai/plugin-test-pane --external @jiulimiai/plugin-themes --external @jiulimiai/workbench",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@jiulimiai/ai-host": "workspace:*",
+    "@jiulimiai/editor": "workspace:*",
+    "@jiulimiai/kernel": "workspace:*",
+    "@jiulimiai/plugin-ai": "workspace:*",
+    "@jiulimiai/plugin-api": "workspace:*",
+    "@jiulimiai/plugin-commands": "workspace:*",
+    "@jiulimiai/plugin-explorer": "workspace:*",
+    "@jiulimiai/plugin-extensions": "workspace:*",
+    "@jiulimiai/plugin-hello": "workspace:*",
+    "@jiulimiai/plugin-i18n": "workspace:*",
+    "@jiulimiai/plugin-panel": "workspace:*",
+    "@jiulimiai/plugin-runtime": "workspace:*",
+    "@jiulimiai/plugin-scm": "workspace:*",
+    "@jiulimiai/plugin-search": "workspace:*",
+    "@jiulimiai/plugin-terminal": "workspace:*",
+    "@jiulimiai/plugin-test-pane": "workspace:*",
+    "@jiulimiai/plugin-themes": "workspace:*",
+    "@jiulimiai/workbench": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/molecule-ide"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

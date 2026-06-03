@@ -1,5 +1,5 @@
-import { createTerminalHost, type TerminalHost } from '@easyspace/terminal-host';
-import type { TerminalAPI, TerminalSession, WorkspaceAPI } from '@easyspace/plugin-api';
+import { createTerminalHost, type TerminalHost } from '@jiulimiai/terminal-host';
+import type { TerminalAPI, TerminalSession, WorkspaceAPI } from '@jiulimiai/plugin-api';
 
 export interface TerminalService extends TerminalAPI {}
 
@@ -44,4 +44,4 @@ export function createTerminalService(options: TerminalServiceOptions = {}): Ter
   };
 }
 
-export { createTerminalHost, TerminalHost } from '@easyspace/terminal-host';
+export { createTerminalHost, TerminalHost } from '@jiulimiai/terminal-host';

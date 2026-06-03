@@ -1,0 +1,16 @@
+@import "@jiulimiai/ui/styles/tokens.css";
+
+@source "../node_modules/@jiulimiai/ui/src/**/*.{ts,tsx}";
+@source "../node_modules/@jiulimiai/workbench/src/**/*.{ts,tsx}";
+@source "../node_modules/@jiulimiai/editor/src/**/*.{ts,tsx}";
+@source "../node_modules/@jiulimiai/molecule-ide/src/**/*.{ts,tsx}";
+@source "../node_modules/@jiulimiai/plugin-*/src/**/*.{ts,tsx}";
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}

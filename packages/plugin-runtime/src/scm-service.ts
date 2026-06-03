@@ -1,5 +1,5 @@
-import { createGitService, type GitService } from '@easyspace/git';
-import type { Disposable, ScmAPI, ScmCommit, ScmFileChange, ScmRepository, WorkspaceAPI } from '@easyspace/plugin-api';
+import { createGitService, type GitService } from '@jiulimiai/git';
+import type { Disposable, ScmAPI, ScmCommit, ScmFileChange, ScmRepository, WorkspaceAPI } from '@jiulimiai/plugin-api';
 
 export interface ScmService extends ScmAPI {
   noteChange(path: string): void;

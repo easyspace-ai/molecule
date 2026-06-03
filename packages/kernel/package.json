@@ -1,5 +1,5 @@
 {
-  "name": "@easyspace/kernel",
+  "name": "@jiulimiai/kernel",
   "version": "0.1.0",
   "description": "Molecule Next application kernel — lifecycle, events, configuration",
   "type": "module",
@@ -11,7 +11,9 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --dts --watch",
@@ -20,12 +22,21 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@easyspace/plugin-api": "workspace:*",
+    "@jiulimiai/plugin-api": "workspace:*",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easyspace-ai/molecule.git",
+    "directory": "packages/kernel"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

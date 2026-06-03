@@ -10,8 +10,8 @@ AI spans editor inline edits, auxiliary chat panel, tool execution, and MCP. A s
 
 ## Decision
 
-- Introduce **`@easyspace/ai-host`** with Provider registry, context pipeline, streaming channels, and tool executor with permission prompts.
-- UI and default OpenAI-compatible wiring live in **`@easyspace/plugin-ai`**.
+- Introduce **`@jiulimiai/ai-host`** with Provider registry, context pipeline, streaming channels, and tool executor with permission prompts.
+- UI and default OpenAI-compatible wiring live in **`@jiulimiai/plugin-ai`**.
 - Plugins contribute `aiProviders` and `aiTools` via manifest schema in `plugin-api`.
 
 ## Consequences

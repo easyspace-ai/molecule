@@ -1,4 +1,4 @@
-import type { PluginModule, UIAPI } from '@easyspace/plugin-api';
+import type { PluginModule, UIAPI } from '@jiulimiai/plugin-api';
 import {
   CommandDialog,
   CommandEmpty,
@@ -6,7 +6,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@easyspace/ui';
+} from '@jiulimiai/ui';
 import { useEffect, useState } from 'react';
 
 let commandList: { id: string; title: string }[] = [];

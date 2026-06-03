@@ -1,4 +1,4 @@
-import type { WorkspaceBackendClient } from '@easyspace/plugin-api';
+import type { WorkspaceBackendClient } from '@jiulimiai/plugin-api';
 
 function joinUrl(base: string, path: string): string {
   const trimmed = base.replace(/\/+$/, '');

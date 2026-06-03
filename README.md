@@ -10,6 +10,14 @@ pnpm build
 pnpm dev
 ```
 
+**Third-party npm demo** (standalone, uses published `@jiulimiai/*`):
+
+```bash
+cd demo && pnpm install && pnpm dev   # http://localhost:5300
+```
+
+See [`demo/README.md`](demo/README.md).
+
 Open http://localhost:5199 — Reference IDE with sample workspace, Explorer, Command Palette (`Ctrl+Shift+P` / `⌘⇧P`), and AI Chat (mock provider).
 
 ## Phase 1 features (Reference IDE)
@@ -24,23 +32,24 @@ See the full roadmap: **[DESIGN-ROADMAP](docs/DESIGN-ROADMAP.md)**.
 
 | Package | Description |
 |---------|-------------|
-| `@easyspace/kernel` | App lifecycle, config, events |
-| `@easyspace/ui` | Craft tokens, shadcn components, icons, IDE primitives |
-| `@easyspace/workbench` | VS Code–like layout shell |
-| `@easyspace/editor` | Monaco adapter + tabs |
-| `@easyspace/plugin-runtime` | Loader, registry, activation, keybindings |
-| `@easyspace/ai-host` | AI providers, context, tools |
-| `@easyspace/git` | isomorphic-git + WorkspaceAPI bridge |
-| `@easyspace/terminal-host` | Terminal sessions and commands |
-| `@easyspace/plugin-*` | Official plugins (explorer, themes, ai, …) |
+| `@jiulimiai/kernel` | App lifecycle, config, events |
+| `@jiulimiai/ui` | Craft tokens, shadcn components, icons, IDE primitives |
+| `@jiulimiai/workbench` | VS Code–like layout shell |
+| `@jiulimiai/editor` | Monaco adapter + tabs |
+| `@jiulimiai/plugin-runtime` | Loader, registry, activation, keybindings |
+| `@jiulimiai/ai-host` | AI providers, context, tools |
+| `@jiulimiai/git` | isomorphic-git + WorkspaceAPI bridge |
+| `@jiulimiai/molecule-ide` | Embed SDK — `<MoleculeIDE />` for third-party hosts |
+| `@jiulimiai/terminal-host` | Terminal sessions and commands |
+| `@jiulimiai/plugin-*` | Official plugins (explorer, themes, ai, …) |
 
 ## Scripts
 
-- `pnpm build:extensions` — Bundle Reference IDE dynamic extensions
+- `pnpm verify:publish` — Pack `@jiulimiai/*` tarballs and smoke-build an npm consumer app
 - `pnpm dev` — Reference IDE (Vite)
 - `pnpm build` — Build all packages (Turbo)
 - `pnpm test` — Vitest unit tests
-- `pnpm analyze --filter=@easyspace/reference-ide` — Production build + bundle stats (`dist/stats.html`)
+- `pnpm analyze --filter=@jiulimiai/reference-ide` — Production build + bundle stats (`dist/stats.html`)
 - `node scripts/check-bundle.mjs` — Verify Monaco is split into a separate chunk (CI)
 
 ## Docs
@@ -53,7 +62,7 @@ See the full roadmap: **[DESIGN-ROADMAP](docs/DESIGN-ROADMAP.md)**.
 - [ADR 005: Phase 6 host packages](docs/adr/005-phase6-host-packages.md)
 - [ADR 007: UI layer & embed-first](docs/adr/007-ui-layer-and-embed-first.md)
 - [Extension author guide](docs/EXTENSIONS.md)
-- **[Embed SDK guide](docs/EMBED.md)** — `createMoleculeIDE()` minimal host
+- **[Embed SDK guide](docs/EMBED.md)** — `@jiulimiai/molecule-ide` + `<MoleculeIDE />`
 - [Legacy migration map](docs/MIGRATION-LEGACY.md)
 
 ## Legacy code

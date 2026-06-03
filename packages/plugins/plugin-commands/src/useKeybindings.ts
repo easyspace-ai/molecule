@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import type { KeybindingRegistry } from '@easyspace/plugin-runtime';
+import type { KeybindingRegistry } from '@jiulimiai/plugin-runtime';
 
 export interface UseKeybindingsOptions {
   registry: KeybindingRegistry;

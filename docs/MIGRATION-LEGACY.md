@@ -2,13 +2,13 @@
 
 > **Cleanup note:** Legacy `src/`, `app/`, `website/`, `esm/`, and vendored reference clones (`Pyxis-CodeCanvas/`, `craft-agents-oss/`) were removed from this repository in the Molecule Next cleanup. Consult git history for the deleted tree and file contents.
 
-This document maps APIs from the original `@dtinsight/molecule` codebase to **Molecule Next** (`@easyspace/*` packages). There is **no runtime compatibility layer**.
+This document maps APIs from the original `@dtinsight/molecule` codebase to **Molecule Next** (`@jiulimiai/*` packages). There is **no runtime compatibility layer**.
 
 ## Package mapping
 
 | Legacy | Molecule Next |
 |--------|----------------|
-| `@dtinsight/molecule` | `@easyspace/kernel` + `@easyspace/workbench` + `@easyspace/editor` + `@easyspace/plugin-runtime` |
+| `@dtinsight/molecule` | `@jiulimiai/kernel` + `@jiulimiai/workbench` + `@jiulimiai/editor` + `@jiulimiai/plugin-runtime` |
 | `create({ extensions })` | `createApp({ plugins })` + `PluginManager` + React `<MoleculeIDE />` |
 | `IExtension` | `PluginModule` + `pluginManifestSchema` (Zod) |
 | `IMoleculeContext` | `PluginContext` facades (`workspace`, `workbench`, `editor`, `commands`, `ai`, `ui`) |
@@ -34,8 +34,8 @@ This document maps APIs from the original `@dtinsight/molecule` codebase to **Mo
 |-------------|--------|
 | `src/extensions/themes/*.json` | Copy into `plugin-themes` as static assets |
 | `src/extensions/locales/*` | Future `plugin-i18n` |
-| `src/monaco/override/*` | Re-evaluate per Monaco version; prefer official APIs in `@easyspace/editor` |
-| `src/client/slots/workbench/index.tsx` | Layout reference for `@easyspace/workbench` |
+| `src/monaco/override/*` | Re-evaluate per Monaco version; prefer official APIs in `@jiulimiai/editor` |
+| `src/client/slots/workbench/index.tsx` | Layout reference for `@jiulimiai/workbench` |
 
 ## Workspace layout
 

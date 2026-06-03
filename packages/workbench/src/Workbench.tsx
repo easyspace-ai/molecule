@@ -10,8 +10,8 @@ import {
   ViewContainer,
   resolveActivityIcon,
   Icon_Sparkles,
-} from '@easyspace/ui';
-import { defaultL10n } from '@easyspace/plugin-api';
+} from '@jiulimiai/ui';
+import { defaultL10n } from '@jiulimiai/plugin-api';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 

@@ -9,15 +9,20 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --filter=@easyspace/reference-ide",
-    "dev:embed": "turbo run dev --filter=@easyspace/embed-demo",
+    "dev": "turbo run dev --filter=@jiulimiai/reference-ide",
+    "dev:embed": "turbo run dev --filter=@jiulimiai/embed-demo",
+    "dev:pi-server": "turbo run dev --filter=@jiulimiai/pi-server",
+    "dev:all": "turbo run dev --filter=@jiulimiai/reference-ide --filter=@jiulimiai/pi-server",
     "lint": "turbo run lint",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "turbo run typecheck",
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
-    "build:extensions": "node scripts/build-extensions.mjs"
+    "build:extensions": "node scripts/build-extensions.mjs",
+    "sync:publish": "node scripts/sync-publish-metadata.mjs",
+    "verify:publish": "node scripts/sync-publish-metadata.mjs && SKIP_CONSUMER=1 node scripts/verify-publish.mjs",
+    "verify:publish:full": "node scripts/sync-publish-metadata.mjs && node scripts/verify-publish.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",

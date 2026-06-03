@@ -1,4 +1,4 @@
-import type { PluginModule, ExtensionDetailData } from '@easyspace/plugin-api';
+import type { PluginModule, ExtensionDetailData } from '@jiulimiai/plugin-api';
 import {
   fetchExtensionCatalog,
   fetchExtensionIndex,
@@ -6,8 +6,8 @@ import {
   setExtensionEnabled,
   uninstallExtension,
   type ExtensionCatalogEntry,
-} from '@easyspace/plugin-runtime';
-import { Button, Input, ScrollArea, cn, Icon_Puzzle, resolveActivityIcon } from '@easyspace/ui';
+} from '@jiulimiai/plugin-runtime';
+import { Button, Input, ScrollArea, cn, Icon_Puzzle, resolveActivityIcon } from '@jiulimiai/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type MarketplaceTab = 'installed' | 'available';
